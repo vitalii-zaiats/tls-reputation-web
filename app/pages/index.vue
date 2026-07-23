@@ -78,6 +78,56 @@ function onGraphNodeClick(node: string) {
   const v = node.slice(2)
   navigateTo(node[0] === "f" ? `/fp/${encodeURIComponent(v)}` : `/sni/${encodeURIComponent(v)}`)
 }
+
+// FAQ — the project thesis + privacy. Rendered visibly AND emitted as FAQPage
+// JSON-LD (identical text) so it is eligible for rich results and never drifts.
+const FAQ = [
+  {
+    q: "What is this for?",
+    a: "A reputation lookup for TLS client fingerprints. The corpus is gathered inside a residential proxy network, so it leans toward the traffic worth scrutinising: a fingerprint seen here is software that routes through anonymising proxies, across every domain it reaches. Compute the JA4 of an incoming ClientHello, look it up, and decide how far to trust the connection.",
+  },
+  {
+    q: "Why does being seen on a proxy network mean anything?",
+    a: "Most people connect directly. Traffic that deliberately exits through a residential-proxy pool is disproportionately automation — scrapers, checkout and sneaker bots, credential stuffing, fraud tooling. A stack that reaches dozens of unrelated login endpoints this way is not a person having a day. Presence is not proof of abuse, but it is exactly the population worth a second look.",
+  },
+  {
+    q: "Then why are browsers not flagged too?",
+    a: "A real browser is the one client with an innocent reason to be proxied — a privacy-minded person on a VPN — and the one client you can challenge. Chrome and Firefox run JavaScript, so a JS or CAPTCHA challenge tells a genuine browser from a headless one wearing its fingerprint. curl, Go's net/http, Python and most bots cannot pass that, and have no honest reason to be in a proxy pool at volume. Rule of thumb: browser-shaped, defer to a JS challenge; not browser-shaped and widely seen on proxies, treat as bad.",
+  },
+  {
+    q: "Is “bad reputation” a verdict?",
+    a: "No — it is one signal. The site never says a connection is fraud; it says a fingerprint has this shape and this history. Use it alongside your own signals to decide whether to allow, rate-limit, challenge or block.",
+  },
+  {
+    q: "Does this track people?",
+    a: "No. A TLS fingerprint identifies software, not a person: everyone on the same Chrome build shares one. Nothing here records who opened a connection.",
+  },
+  {
+    q: "What do you actually store?",
+    a: "Aggregates only — (fingerprint, domain, counter). We record that some client stack reached some server name, and how often. Never an IP, never the proxy peer's identity, never a per-person browsing history. A row is a statistic, not a log.",
+  },
+  {
+    q: "Can I see my own fingerprint?",
+    a: "Yes — the fingerprint checker reads it live from the probe: your JA3 and JA4, and how the corpus sees them.",
+  },
+]
+
+useHead({
+  script: [
+    {
+      type: "application/ld+json",
+      innerHTML: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: FAQ.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      }),
+    },
+  ],
+})
 </script>
 
 <template>
@@ -215,6 +265,39 @@ function onGraphNodeClick(node: string) {
       @node-click="onGraphNodeClick"
     />
   </section>
+
+  <section class="faq section">
+    <h2>FAQ</h2>
+    <div v-for="f in FAQ" :key="f.q" class="qa">
+      <h3>{{ f.q }}</h3>
+      <p>{{ f.a }}</p>
+    </div>
+    <p class="faq-links">
+      <NuxtLink to="/fingerprint">Check your own fingerprint</NuxtLink> ·
+      <NuxtLink to="/browse">browse the corpus</NuxtLink> ·
+      <NuxtLink to="/docs">API</NuxtLink>
+    </p>
+  </section>
 </template>
 
 <style scoped lang="scss" src="~/styles/pages/index.scss"></style>
+
+<style scoped>
+.faq .qa {
+  max-width: 68ch;
+  margin-bottom: 1.4rem;
+}
+.faq .qa h3 {
+  margin-bottom: 0.35rem;
+  font-size: 1.02rem;
+}
+.faq .qa p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.faq-links {
+  margin-top: 1.75rem;
+  font-size: 0.9rem;
+}
+</style>

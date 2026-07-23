@@ -183,7 +183,9 @@ watch(
       </div>
     </div>
 
-    <div v-if="fpPending" class="status">Loading fingerprints…</div>
+    <div v-if="fpPending" class="tbl-wrap sk-table">
+      <Skeleton :lines="12" height="2.2rem" gap="0.5rem" />
+    </div>
     <div v-else class="tbl-wrap">
       <table class="tbl">
         <thead>
@@ -240,7 +242,9 @@ watch(
       </div>
     </div>
 
-    <div v-if="snisPending" class="status">Loading domains…</div>
+    <div v-if="snisPending" class="tbl-wrap sk-table">
+      <Skeleton :lines="12" height="2.2rem" gap="0.5rem" />
+    </div>
     <div v-else class="tbl-wrap">
       <table class="tbl">
         <thead>
@@ -271,3 +275,9 @@ watch(
 </template>
 
 <style scoped lang="scss" src="~/styles/pages/browse.scss"></style>
+
+<style scoped>
+.sk-table {
+  padding: 0.6rem;
+}
+</style>

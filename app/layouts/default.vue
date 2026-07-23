@@ -5,6 +5,7 @@ const showHeaderLookup = computed(() => route.name !== "index")
 </script>
 
 <template>
+  <NuxtLoadingIndicator color="#e8a23c" :height="2" />
   <a class="skip" href="#main">Skip to content</a>
 
   <header class="masthead">

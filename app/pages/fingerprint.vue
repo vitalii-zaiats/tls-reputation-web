@@ -197,7 +197,15 @@ useSeoMeta({
   <section class="section">
     <h2>Your browser</h2>
 
-    <div v-if="pending" class="status">Detecting your fingerprint…</div>
+    <div v-if="pending" class="sk-detect" aria-label="Detecting your fingerprint">
+      <Skeleton height="0.7rem" width="3rem" />
+      <Skeleton height="1.7rem" width="min(70%, 26rem)" rounded="8px" />
+      <div class="sk-chips">
+        <Skeleton height="1.4rem" width="7rem" rounded="999px" />
+        <Skeleton height="1.4rem" width="6rem" rounded="999px" />
+      </div>
+      <Skeleton :lines="3" height="1.05rem" :width="['42%', '55%', '48%']" gap="0.7rem" />
+    </div>
 
     <div v-else-if="failed" class="status status--error">
       Couldn’t reach the probe. It answers on port <code>8443</code>; a firewall
@@ -369,6 +377,16 @@ useSeoMeta({
 }
 .status--error {
   color: var(--text);
+}
+.sk-detect {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1rem 0;
+}
+.sk-chips {
+  display: flex;
+  gap: 0.5rem;
 }
 .qa {
   margin-bottom: 1rem;

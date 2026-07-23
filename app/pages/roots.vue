@@ -88,7 +88,14 @@ useSeoMeta({
           <th class="r">observations</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody v-if="pending">
+        <tr v-for="i in 12" :key="`sk-${i}`">
+          <td><Skeleton height="1.05rem" :width="['58%', '42%', '66%', '50%'][i % 4]" /></td>
+          <td class="r"><Skeleton class="sk-r" height="1.05rem" width="2.5rem" /></td>
+          <td class="r"><Skeleton class="sk-r" height="1.05rem" width="4rem" /></td>
+        </tr>
+      </tbody>
+      <tbody v-else>
         <tr v-for="d in items" :key="d.domain">
           <td>
             <NuxtLink :to="`/sni/${encodeURIComponent(d.domain)}`" class="mono">{{ d.domain }}</NuxtLink>
@@ -96,7 +103,7 @@ useSeoMeta({
           <td class="r">{{ formatNum(d.hostnames) }}</td>
           <td class="r">{{ formatNum(d.observations) }}</td>
         </tr>
-        <tr v-if="!items.length && !pending">
+        <tr v-if="!items.length">
           <td colspan="3" class="muted empty">No domains.</td>
         </tr>
       </tbody>
@@ -148,6 +155,9 @@ useSeoMeta({
 }
 .tbl .r {
   text-align: right;
+}
+.sk-r {
+  align-items: flex-end;
 }
 .empty {
   padding: 1.5rem 0;
