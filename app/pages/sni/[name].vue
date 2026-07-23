@@ -2,6 +2,9 @@
 import { useDomainService } from "~/api/services/domain"
 import type { DomainClient } from "~/api/types"
 
+// Remount on route change so navigating between two /sni/[name] routes refetches.
+definePageMeta({ key: (route) => route.fullPath })
+
 const route = useRoute()
 const domains = useDomainService()
 const name = computed(() => String(route.params.name || ""))
@@ -9,10 +12,12 @@ const name = computed(() => String(route.params.name || ""))
 const PAGE = 50
 const page = ref(0)
 
+// Per-domain key so a remount fetches the new domain instead of the previous
+// one's cached data; pagination (page ref) refetches this entry via the watch.
 const { data, error, pending } = await useAsyncData(
-  "sni",
+  `sni:${name.value}`,
   () => domains.detail(name.value, { limit: PAGE, offset: page.value * PAGE }),
-  { watch: [name, page] },
+  { watch: [page] },
 )
 // Sync flush so the page reset lands before useAsyncData's own [name, page]
 // watcher runs, collapsing an offset>0 domain change into a single fetch at 0.

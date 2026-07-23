@@ -2,15 +2,20 @@
 import { useFingerprintService } from "~/api/services/fingerprint"
 import type { DomainReach, Ja3Variants, Stability } from "~/api/types"
 
+// Remount on every route change so the fetch re-runs for the new fingerprint: a
+// shared-key useAsyncData + watch does not reliably refetch when navigating
+// between two /fp/[hash] routes (e.g. via the header lookup).
+definePageMeta({ key: (route) => route.fullPath })
+
 const route = useRoute()
 const fingerprints = useFingerprintService()
 
 const hash = computed(() => String(route.params.hash || ""))
 
-// The service routes a 32-hex md5 to /ja3 and anything else to /ja4.
-const { data: fp, error } = await useAsyncData("fp", () => fingerprints.detail(hash.value), {
-  watch: [hash],
-})
+// The service routes a 32-hex md5 to /ja3 and anything else to /ja4. A per-hash
+// key gives each fingerprint its own cache entry, so navigating between two
+// /fp/[hash] routes refetches instead of returning the previous one's cached data.
+const { data: fp, error } = await useAsyncData(`fp:${hash.value}`, () => fingerprints.detail(hash.value))
 
 const notFound = computed(() => (error.value?.statusCode ?? error.value?.status) === 404)
 
@@ -68,19 +73,11 @@ async function loadReach() {
     reachPending.value = false
   }
 }
-// Client-only. `immediate` covers the first load without an onMounted (which
-// wouldn't re-fire when the page component is reused across route changes); the
-// ja4 watch then handles every subsequent navigation, resetting paging first.
-watch(
-  () => fp.value?.ja4,
-  () => {
-    reachOffset.value = 0
-    reachRows.value = []
-    reachTotal.value = 0
-    loadReach()
-  },
-  { immediate: import.meta.client },
-)
+// The page remounts per route (definePageMeta key), so onMounted fires for each
+// fingerprint. Loading the reach AFTER mount — not synchronously during setup —
+// keeps the server and client's first render identical (no hydration mismatch:
+// reachPending stays false through hydration). The offset watch drives paging.
+onMounted(loadReach)
 watch(reachOffset, loadReach)
 
 // ---- ja3 variants ----
