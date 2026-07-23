@@ -16,6 +16,7 @@ const showHeaderLookup = computed(() => route.name !== "index")
 
       <nav class="nav" aria-label="Main">
         <NuxtLink to="/browse">browse</NuxtLink>
+        <NuxtLink to="/roots">roots</NuxtLink>
         <NuxtLink to="/graph">graph</NuxtLink>
         <NuxtLink to="/fingerprint">your fingerprint</NuxtLink>
         <NuxtLink to="/docs">docs</NuxtLink>

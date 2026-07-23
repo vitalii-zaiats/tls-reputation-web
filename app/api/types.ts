@@ -147,6 +147,18 @@ export interface DomainList {
   total: number
 }
 
+/** A registrable domain (eTLD+1) with the SNIs that roll up into it. */
+export interface RootSummary {
+  domain: string
+  hostnames: number
+  observations: number
+}
+
+export interface RootList {
+  items: RootSummary[]
+  total: number
+}
+
 // ────────────────────────────── catalog / meta ────────────────────────────
 
 export interface Stats {
@@ -234,4 +246,9 @@ export interface DomainListParams extends PageParams {
   sort?: string
   dir?: SortDir
   category?: string
+}
+
+export interface RootListParams extends PageParams {
+  sort?: string
+  dir?: SortDir
 }
