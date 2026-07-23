@@ -1,0 +1,21 @@
+// Chrome-less graph embed: fill the whole iframe, no page chrome.
+.embed-graph {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.embed-hint {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--dim);
+}
+.embed-hint code {
+  color: var(--text);
+}
