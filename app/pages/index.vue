@@ -268,9 +268,11 @@ useHead({
 
   <section class="faq section">
     <h2>FAQ</h2>
-    <div v-for="f in FAQ" :key="f.q" class="qa">
-      <h3>{{ f.q }}</h3>
-      <p>{{ f.a }}</p>
+    <div class="faq-list">
+      <details v-for="f in FAQ" :key="f.q" class="qa">
+        <summary>{{ f.q }}</summary>
+        <p>{{ f.a }}</p>
+      </details>
     </div>
     <p class="faq-links">
       <NuxtLink to="/fingerprint">Check your own fingerprint</NuxtLink> ·
@@ -283,16 +285,46 @@ useHead({
 <style scoped lang="scss" src="~/styles/pages/index.scss"></style>
 
 <style scoped>
-.faq .qa {
-  max-width: 68ch;
-  margin-bottom: 1.4rem;
+.faq-list {
+  border-top: 1px solid var(--border);
 }
-.faq .qa h3 {
-  margin-bottom: 0.35rem;
+.faq .qa {
+  border-bottom: 1px solid var(--border);
+}
+.faq .qa summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 0;
   font-size: 1.02rem;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+}
+/* Kill the native disclosure triangle in favour of the +/− marker. */
+.faq .qa summary::-webkit-details-marker {
+  display: none;
+}
+.faq .qa summary::after {
+  content: "+";
+  flex: none;
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--muted);
+  transition: transform 0.2s ease;
+}
+.faq .qa[open] summary::after {
+  content: "−";
+}
+.faq .qa summary:hover {
+  color: var(--accent, inherit);
 }
 .faq .qa p {
-  margin: 0;
+  max-width: 72ch;
+  margin: 0 0 1.15rem;
   color: var(--muted);
   line-height: 1.6;
 }
