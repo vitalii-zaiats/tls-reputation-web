@@ -59,75 +59,207 @@ const stat = computed(() =>
     : [],
 )
 
-useHead({ title: "Your TLS fingerprint — tls-reputation.com" })
+// --- programmatic examples --------------------------------------------------
+// The probe answers any TLS client with that client's own fingerprint, so these
+// each return something different from a browser (and from each other).
+const LANGS = [
+  { key: "curl", label: "curl" },
+  { key: "python", label: "Python" },
+  { key: "go", label: "Go" },
+  { key: "node", label: "Node" },
+] as const
+type Lang = (typeof LANGS)[number]["key"]
+const lang = ref<Lang>("curl")
+
+const SNIPPETS: Record<Lang, string> = {
+  curl: `curl https://probe.tls-reputation.com:8443/`,
+  python: `import json, urllib.request
+
+with urllib.request.urlopen("https://probe.tls-reputation.com:8443/") as r:
+    fp = json.load(r)
+
+print(fp["ja4"], fp["known"])`,
+  go: `package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+func main() {
+	r, _ := http.Get("https://probe.tls-reputation.com:8443/")
+	defer r.Body.Close()
+	var fp map[string]any
+	json.NewDecoder(r.Body).Decode(&fp)
+	fmt.Println(fp["ja4"])
+}`,
+  node: `const fp = await fetch("https://probe.tls-reputation.com:8443/")
+  .then((r) => r.json())
+
+console.log(fp.ja4, fp.known)`,
+}
+
+const EXAMPLE_OUTPUT = `{
+  "ja4": "t13d4907h2_0d8feac7bc37_7395dae3b2f3",
+  "ja3": "375c6162a492dfbf2795909110ce8424",
+  "tls_version": "TLS 1.3",
+  "alpn": ["h2", "http/1.1"],
+  "known": null,
+  "observed": true,
+  "reputation": {
+    "observations": 26,
+    "unique_snis": 10,
+    "spread": 0.855,
+    "stability": { "class": "fixed" }
+  }
+}`
+
+const copied = ref(false)
+async function copyActive() {
+  try {
+    await navigator.clipboard.writeText(SNIPPETS[lang.value])
+    copied.value = true
+    setTimeout(() => (copied.value = false), 1200)
+  } catch {
+    /* clipboard blocked — the code is selectable anyway */
+  }
+}
+
+useHead({ title: "TLS fingerprint checker — your JA3 & JA4 | tls-reputation.com" })
 useSeoMeta({
   description:
-    "See your own browser's live TLS fingerprint (JA3/JA4) and how it compares to the reputation corpus.",
+    "Free TLS fingerprint checker: see your browser's live JA3 and JA4 fingerprint, or query the probe from curl, Python, Go or Node — exactly how your client looks on the wire.",
 })
 </script>
 
 <template>
-  <h1>Your TLS fingerprint</h1>
+  <h1>TLS fingerprint checker</h1>
   <p class="lede">
-    Read live from the probe, which peeks the ClientHello of your connection —
-    this is how <em>this browser</em> looks on the wire.
+    Your <strong>JA3</strong> and <strong>JA4</strong> — the fingerprint of the
+    TLS ClientHello your software sends. Read live below from the probe, which
+    peeks the handshake of your connection: this is how <em>this client</em>
+    looks on the wire, and whether the corpus has seen it before.
   </p>
 
-  <div v-if="pending" class="status">Detecting your fingerprint…</div>
+  <!-- ============ LIVE: this browser ============ -->
+  <section class="section">
+    <h2>Your browser</h2>
 
-  <div v-else-if="failed" class="status status--error">
-    Couldn’t reach the probe. It answers on port <code>8443</code>; a firewall or
-    network policy may be blocking it.
-    <button class="retry" type="button" @click="detect">Try again</button>
-  </div>
+    <div v-if="pending" class="status">Detecting your fingerprint…</div>
 
-  <template v-else-if="data">
-    <header class="head">
-      <p class="eyebrow mono">JA4</p>
-      <CopyText :text="data.ja4" class="hash" />
-      <div class="chips">
-        <VerdictChip v-if="knownName" tone="notable" :label="knownName" />
-        <VerdictChip v-else tone="unestablished" label="unrecognised client" />
-        <VerdictChip
-          :tone="data.observed ? 'neutral' : 'unestablished'"
-          :label="data.observed ? 'in the corpus' : 'never observed'"
-        />
-      </div>
-    </header>
+    <div v-else-if="failed" class="status status--error">
+      Couldn’t reach the probe. It answers on port <code>8443</code>; a firewall
+      or network policy may be blocking it.
+      <button class="btn" type="button" @click="detect">Try again</button>
+    </div>
 
-    <StatGrid v-if="rep" :items="stat" />
+    <template v-else-if="data">
+      <header class="head">
+        <p class="eyebrow mono">JA4</p>
+        <CopyText :text="data.ja4" class="hash" />
+        <div class="chips">
+          <VerdictChip v-if="knownName" tone="notable" :label="knownName" />
+          <VerdictChip v-else tone="unestablished" label="unrecognised client" />
+          <VerdictChip
+            :tone="data.observed ? 'neutral' : 'unestablished'"
+            :label="data.observed ? 'in the corpus' : 'never observed'"
+          />
+        </div>
+      </header>
 
-    <dl class="facts">
-      <div><dt>JA3</dt><dd><CopyText :text="data.ja3" /></dd></div>
-      <div><dt>TLS</dt><dd>{{ data.tls_version }}</dd></div>
-      <div><dt>ALPN</dt><dd class="mono">{{ data.alpn.join(", ") }}</dd></div>
-      <div v-if="rep">
-        <dt>Spread</dt>
-        <dd class="spread"><SpreadBar :value="rep.spread" /> <span class="mono">{{ rep.spread.toFixed(3) }}</span></dd>
-      </div>
-      <div v-if="rep?.stability">
-        <dt>Stability</dt>
-        <dd><StabilityBadge :stability="rep.stability" show-variants /></dd>
-      </div>
-    </dl>
+      <StatGrid v-if="rep" :items="stat" />
 
-    <p v-if="rep?.stability?.explanation" class="explain muted">{{ rep.stability.explanation }}</p>
+      <dl class="facts">
+        <div><dt>JA3</dt><dd><CopyText :text="data.ja3" /></dd></div>
+        <div><dt>TLS</dt><dd>{{ data.tls_version }}</dd></div>
+        <div><dt>ALPN</dt><dd class="mono">{{ data.alpn.join(", ") }}</dd></div>
+        <div v-if="rep">
+          <dt>Spread</dt>
+          <dd class="spread"><SpreadBar :value="rep.spread" /> <span class="mono">{{ rep.spread.toFixed(3) }}</span></dd>
+        </div>
+        <div v-if="rep?.stability">
+          <dt>Stability</dt>
+          <dd><StabilityBadge :stability="rep.stability" show-variants /></dd>
+        </div>
+      </dl>
 
-    <p class="actions">
-      <NuxtLink v-if="data.observed" class="cta" :to="`/fp/${encodeURIComponent(data.ja4)}`">
-        Full corpus record for this fingerprint →
-      </NuxtLink>
-      <button class="retry" type="button" @click="detect">Re-check</button>
+      <p v-if="rep?.stability?.explanation" class="explain muted">{{ rep.stability.explanation }}</p>
+
+      <p class="actions">
+        <NuxtLink v-if="data.observed" class="cta" :to="`/fp/${encodeURIComponent(data.ja4)}`">
+          Full corpus record for this fingerprint →
+        </NuxtLink>
+        <button class="btn" type="button" @click="detect">Re-check</button>
+      </p>
+    </template>
+  </section>
+
+  <!-- ============ Programmatic: any client ============ -->
+  <section class="section">
+    <h2>From your own client</h2>
+    <p class="muted narrow">
+      The probe fingerprints <em>whatever connects</em> and returns JSON — so
+      curl, Python, Go, a browser and your own app each get a different JA4.
+      No key, no rate limit, CORS-open.
     </p>
-  </template>
+
+    <div class="tabs" role="tablist" aria-label="Example clients">
+      <button
+        v-for="l in LANGS"
+        :key="l.key"
+        type="button"
+        role="tab"
+        :aria-selected="lang === l.key"
+        class="tab"
+        :class="{ active: lang === l.key }"
+        @click="lang = l.key"
+      >
+        {{ l.label }}
+      </button>
+      <button type="button" class="copy" @click="copyActive">{{ copied ? "copied" : "copy" }}</button>
+    </div>
+
+    <pre v-for="l in LANGS" v-show="lang === l.key" :key="l.key" class="code"><code>{{ SNIPPETS[l.key] }}</code></pre>
+
+    <h3 class="ex-h">Example output</h3>
+    <p class="muted narrow">
+      curl isn’t a recognised browser, so <code>known</code> is <code>null</code>
+      and its handshake is deterministic (<code>stability: fixed</code>). A real
+      Chrome or Firefox returns its name and a completely different JA4.
+    </p>
+    <pre class="code"><code>{{ EXAMPLE_OUTPUT }}</code></pre>
+  </section>
+
+  <!-- ============ What is this — a little SEO/context body ============ -->
+  <section class="section">
+    <h2>What is a TLS fingerprint?</h2>
+    <p class="muted narrow">
+      Every TLS connection opens with a <em>ClientHello</em>: the versions,
+      cipher suites, extensions and curves your software offers. Their exact set
+      and order is characteristic of the client — a
+      <strong>JA3</strong> (MD5, legacy) or <strong>JA4</strong> (readable,
+      current) hash of it. It identifies <em>software</em>, not people: two
+      people running the same Chrome build share a fingerprint. Look any of them
+      up in the <NuxtLink to="/browse">corpus</NuxtLink>, or read the
+      <NuxtLink to="/docs">API</NuxtLink>.
+    </p>
+  </section>
 </template>
 
 <style scoped>
-.lede {
-  max-width: 60ch;
+.lede,
+.narrow {
+  max-width: 62ch;
+}
+.section {
+  margin: 2rem 0;
+}
+.section h2 {
+  margin-bottom: 0.75rem;
 }
 .head {
-  margin: 1.5rem 0 1rem;
+  margin: 1rem 0;
 }
 .eyebrow {
   margin: 0 0 0.35rem;
@@ -169,7 +301,7 @@ useSeoMeta({
   gap: 0.5rem;
 }
 .explain {
-  max-width: 60ch;
+  max-width: 62ch;
   font-size: 0.9rem;
 }
 .actions {
@@ -182,23 +314,77 @@ useSeoMeta({
 .cta {
   font-weight: 500;
 }
-.retry {
-  padding: 0.35rem 0.8rem;
-  font: inherit;
-  color: inherit;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  cursor: pointer;
-}
-.retry:hover {
-  border-color: var(--muted);
-}
 .status {
-  padding: 2rem 0;
+  padding: 1.5rem 0;
   color: var(--muted);
 }
 .status--error {
   color: var(--text);
+}
+
+/* tabs + code */
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  margin-bottom: -1px;
+}
+.tab,
+.copy,
+.btn {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+}
+.tab {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  border-radius: 6px 6px 0 0;
+}
+.tab.active {
+  color: var(--text);
+  background: var(--panel, rgba(127, 127, 127, 0.08));
+  border-color: var(--border);
+  border-bottom-color: transparent;
+}
+.copy {
+  margin-left: auto;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  border-radius: 6px;
+}
+.copy:hover {
+  color: var(--text);
+}
+.code {
+  margin: 0 0 0.5rem;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  background: var(--panel, rgba(127, 127, 127, 0.08));
+  border: 1px solid var(--border);
+  border-radius: 0 8px 8px 8px;
+}
+.code code {
+  font-family: inherit;
+  white-space: pre;
+}
+.ex-h {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 1rem;
+}
+.btn {
+  padding: 0.35rem 0.8rem;
+  background: var(--panel, rgba(127, 127, 127, 0.08));
+  border-color: var(--border);
+  border-radius: 6px;
+}
+.btn:hover {
+  border-color: var(--muted);
 }
 </style>
