@@ -60,6 +60,12 @@ const statItems = computed(() =>
 const total = computed(() => data.value?.unique_fingerprints || 0)
 
 useHead({ title: computed(() => `${name.value} — tls-reputation.com`) })
+useSeoMeta({
+  description: () =>
+    data.value
+      ? `${name.value}: ${formatNum(data.value.unique_fingerprints)} distinct TLS client fingerprints across ${formatNum(data.value.observations)} observations — which JA3/JA4 clients reach this domain, and how concentrated they are.`
+      : `${name.value} — the TLS client fingerprints (JA3/JA4) observed reaching this domain.`,
+})
 </script>
 
 <template>

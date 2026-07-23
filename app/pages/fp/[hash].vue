@@ -90,6 +90,12 @@ const variantTotalObs = computed(() => fp.value?.observations || 1)
 const matched = computed(() => fp.value?.matched_ja3 || null)
 
 useHead({ title: computed(() => `${fp.value?.known?.name || hash.value} — tls-reputation.com`) })
+useSeoMeta({
+  description: () =>
+    fp.value
+      ? `${fp.value.known?.name || hash.value}: a TLS client fingerprint seen in ${formatNum(fp.value.observations)} observations across ${formatNum(fp.value.unique_snis)} domains — JA3/JA4 reputation, stability and reach.`
+      : `${hash.value} — TLS client fingerprint (JA3/JA4) reputation.`,
+})
 </script>
 
 <template>

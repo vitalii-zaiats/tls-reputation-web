@@ -1,0 +1,9 @@
+# tls-reputation.com — a public TLS-fingerprint reputation database.
+# Crawlers welcome. The embeddable widgets under /embed are iframe fragments,
+# not standalone pages, so they are kept out of the index.
+
+User-agent: *
+Allow: /
+Disallow: /embed
+
+Sitemap: https://tls-reputation.com/sitemap.xml

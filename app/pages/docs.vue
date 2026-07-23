@@ -1,18 +1,11 @@
 <script setup lang="ts">
-interface Endpoint {
-  sig: string
-  desc: string
-}
-const ENDPOINTS: Endpoint[] = [
-  { sig: "GET /api/v1/ja4/{ja4}", desc: "Reputation for a JA4 string." },
-  { sig: "GET /api/v1/ja3/{md5}", desc: "Resolve a JA3 md5 to its fingerprint." },
-  { sig: "GET /api/v1/sni/{domain}?limit=&offset=", desc: "Clients that reached a domain." },
-  { sig: "GET /api/v1/fingerprints?sort=&limit=&offset=", desc: "Browse fingerprints." },
-  { sig: "GET /api/v1/snis?sort=&limit=&offset=", desc: "Browse domains." },
-  { sig: "GET /api/v1/alpn", desc: "ALPN offer distribution across the corpus." },
-  { sig: "GET /api/v1/search?q=", desc: "Detect input type (JA4 / JA3 / domain) and resolve it." },
-  { sig: "GET /api/v1/stats", desc: "Corpus size." },
-]
+// The interactive reference is the API's own Swagger UI, embedded live, so it
+// never drifts from what the backend actually serves. It must be the /api/docs
+// path (not the bare /docs): only /api/docs is served without
+// X-Frame-Options/CSP, so only it can be framed.
+const API_BASE = "https://api.tls-reputation.com/api/v1"
+const SWAGGER = "https://api.tls-reputation.com/api/docs"
+const OPENAPI = "https://api.tls-reputation.com/openapi.json"
 useHead({ title: "API documentation — tls-reputation.com" })
 </script>
 
@@ -20,19 +13,32 @@ useHead({ title: "API documentation — tls-reputation.com" })
   <h1>API</h1>
   <p class="lede">
     Public, free, JSON — the same shapes the site renders. Base
-    <code>https://tls-reputation.com/api/v1</code>. Interactive OpenAPI spec at
-    <a href="/api/docs">/api/docs</a>.
+    <code>{{ API_BASE }}</code>. The interactive reference below is the live
+    OpenAPI spec served by the API itself; the raw document is at
+    <a :href="OPENAPI" target="_blank" rel="noopener">openapi.json</a>.
   </p>
 
   <section class="section">
-    <h2>Endpoints</h2>
-    <dl class="endpoints">
-      <template v-for="e in ENDPOINTS" :key="e.sig">
-        <dt class="mono">{{ e.sig }}</dt>
-        <dd class="muted">{{ e.desc }}</dd>
-      </template>
-    </dl>
+    <iframe
+      class="swagger"
+      :src="SWAGGER"
+      title="Interactive API reference — OpenAPI / Swagger UI"
+      loading="lazy"
+    />
   </section>
 </template>
 
 <style scoped lang="scss" src="~/styles/pages/docs.scss"></style>
+
+<style scoped>
+.swagger {
+  display: block;
+  width: 100%;
+  min-height: 80vh;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  /* Swagger UI is light-themed; give it a white canvas so it reads cleanly
+     inside the dark-primary site instead of flashing transparent on load. */
+  background: #fff;
+}
+</style>
