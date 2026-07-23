@@ -5,6 +5,7 @@ import type { Stability } from "~/api/types"
 // peeks the ClientHello of whoever connects and answers with CORS *, so the
 // browser can fetch it cross-origin and learn exactly how it looks on the wire.
 const PROBE_URL = "https://probe.tls-reputation.com:8443/"
+const PAGE_URL = "https://tls-reputation.com/fingerprint"
 
 interface ProbeReputation {
   observations: number
@@ -99,6 +100,9 @@ func main() {
 
 console.log(fp.ja4, fp.known)`,
 }
+// Directly indexes the active language — no v-show list, so switching is
+// reliable and there is exactly one code block on screen.
+const snippet = computed(() => SNIPPETS[lang.value])
 
 const EXAMPLE_OUTPUT = `{
   "ja4": "t13d4907h2_0d8feac7bc37_7395dae3b2f3",
@@ -118,7 +122,7 @@ const EXAMPLE_OUTPUT = `{
 const copied = ref(false)
 async function copyActive() {
   try {
-    await navigator.clipboard.writeText(SNIPPETS[lang.value])
+    await navigator.clipboard.writeText(snippet.value)
     copied.value = true
     setTimeout(() => (copied.value = false), 1200)
   } catch {
@@ -126,7 +130,54 @@ async function copyActive() {
   }
 }
 
-useHead({ title: "TLS fingerprint checker — your JA3 & JA4 | tls-reputation.com" })
+// --- FAQ (rendered visibly AND emitted as JSON-LD so the two never diverge) --
+const FAQ = [
+  {
+    q: "What is a TLS fingerprint?",
+    a: "Every TLS connection opens with a ClientHello that offers a set of versions, cipher suites, extensions and elliptic curves. Their exact selection and order is characteristic of the client software, hashed into a JA3 or JA4 fingerprint. It identifies software, not people — two people on the same Chrome build share a fingerprint.",
+  },
+  {
+    q: "JA3 or JA4 — what's the difference?",
+    a: "JA3 (Salesforce) is the older scheme: an MD5 hash of the ClientHello. JA4 (FoxIO) is the current one: human-readable and robust to the extension shuffling modern browsers do to resist fingerprinting. This checker shows both.",
+  },
+  {
+    q: "How do I check my TLS fingerprint?",
+    a: "Open this page and it reads your browser's fingerprint live from the probe. To fingerprint any other client, request https://probe.tls-reputation.com:8443/ with curl, Python, Go or Node — it returns that client's JA3/JA4 as JSON, no key or rate limit.",
+  },
+]
+
+useHead({
+  title: "TLS fingerprint checker — your JA3 & JA4 | tls-reputation.com",
+  script: [
+    {
+      type: "application/ld+json",
+      innerHTML: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        name: "TLS fingerprint checker",
+        url: PAGE_URL,
+        description:
+          "See your browser's live TLS fingerprint (JA3/JA4) and query it from curl, Python, Go or Node.",
+        applicationCategory: "SecurityApplication",
+        operatingSystem: "Any",
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        isPartOf: { "@type": "WebSite", name: "tls-reputation.com", url: "https://tls-reputation.com" },
+      }),
+    },
+    {
+      type: "application/ld+json",
+      innerHTML: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: FAQ.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      }),
+    },
+  ],
+})
 useSeoMeta({
   description:
     "Free TLS fingerprint checker: see your browser's live JA3 and JA4 fingerprint, or query the probe from curl, Python, Go or Node — exactly how your client looks on the wire.",
@@ -220,7 +271,7 @@ useSeoMeta({
       <button type="button" class="copy" @click="copyActive">{{ copied ? "copied" : "copy" }}</button>
     </div>
 
-    <pre v-for="l in LANGS" v-show="lang === l.key" :key="l.key" class="code"><code>{{ SNIPPETS[l.key] }}</code></pre>
+    <pre class="code"><code>{{ snippet }}</code></pre>
 
     <h3 class="ex-h">Example output</h3>
     <p class="muted narrow">
@@ -231,18 +282,16 @@ useSeoMeta({
     <pre class="code"><code>{{ EXAMPLE_OUTPUT }}</code></pre>
   </section>
 
-  <!-- ============ What is this — a little SEO/context body ============ -->
+  <!-- ============ FAQ (matches the FAQPage JSON-LD above) ============ -->
   <section class="section">
     <h2>What is a TLS fingerprint?</h2>
+    <div v-for="f in FAQ" :key="f.q" class="qa">
+      <h3>{{ f.q }}</h3>
+      <p class="muted narrow">{{ f.a }}</p>
+    </div>
     <p class="muted narrow">
-      Every TLS connection opens with a <em>ClientHello</em>: the versions,
-      cipher suites, extensions and curves your software offers. Their exact set
-      and order is characteristic of the client — a
-      <strong>JA3</strong> (MD5, legacy) or <strong>JA4</strong> (readable,
-      current) hash of it. It identifies <em>software</em>, not people: two
-      people running the same Chrome build share a fingerprint. Look any of them
-      up in the <NuxtLink to="/browse">corpus</NuxtLink>, or read the
-      <NuxtLink to="/docs">API</NuxtLink>.
+      Look any fingerprint up in the <NuxtLink to="/browse">corpus</NuxtLink>, or
+      read the <NuxtLink to="/docs">API</NuxtLink>.
     </p>
   </section>
 </template>
@@ -320,6 +369,13 @@ useSeoMeta({
 }
 .status--error {
   color: var(--text);
+}
+.qa {
+  margin-bottom: 1rem;
+}
+.qa h3 {
+  margin-bottom: 0.3rem;
+  font-size: 1rem;
 }
 
 /* tabs + code */
