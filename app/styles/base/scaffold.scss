@@ -1,0 +1,53 @@
+/* Scaffold-level shared bits, layered on the base.css design tokens.
+   Kept separate so base.css stays a verbatim copy of the design system. */
+
+.tbl-wrap {
+  overflow-x: auto;
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-panel);
+}
+
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.tbl th,
+.tbl td {
+  text-align: left;
+  padding: var(--row-pad) var(--sp-3);
+  border-bottom: var(--border-width) solid var(--line);
+  white-space: nowrap;
+}
+
+.tbl thead th {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+  font-weight: 600;
+}
+
+.tbl tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tbl tbody tr:hover td {
+  background: var(--panel-2);
+}
+
+.tbl .r {
+  text-align: right;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  margin: var(--sp-4) 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+}

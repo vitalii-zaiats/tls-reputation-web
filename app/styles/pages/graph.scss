@@ -1,0 +1,91 @@
+.graph-head {
+  max-width: var(--measure);
+}
+.graph-head .muted {
+  margin-top: var(--sp-2);
+}
+
+.graph-tools {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  margin-top: var(--sp-4);
+  margin-bottom: var(--sp-3);
+}
+.gsearch {
+  display: flex;
+  gap: var(--sp-2);
+  flex: 1 1 22rem;
+  min-width: 0;
+}
+.ginput {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--text);
+  background: var(--panel);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: var(--sp-2) var(--sp-3);
+  font-size: var(--fs-sm);
+}
+.ginput::placeholder {
+  color: var(--faint);
+}
+.ginput:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--amber) 55%, transparent);
+}
+.gnote {
+  font-size: var(--fs-xs);
+  color: var(--dim);
+}
+.gnote code {
+  color: var(--text);
+}
+.gnote--err {
+  color: var(--red);
+}
+
+.graph-err {
+  height: 72vh;
+  min-height: 30rem;
+  display: grid;
+  place-items: center;
+  background: var(--panel);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-panel);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--red);
+}
+
+.graph-legend {
+  display: flex;
+  gap: var(--sp-5);
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: var(--sp-3);
+  font-size: var(--fs-xs);
+  color: var(--dim);
+}
+.key {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.key::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.key--fp::before {
+  background: var(--amber);
+}
+.key--sni::before {
+  background: var(--faint);
+}
+.count {
+  color: var(--faint);
+}

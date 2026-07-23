@@ -1,0 +1,113 @@
+.feed {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  overflow: hidden;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  border-bottom: var(--border-width) solid var(--line);
+  color: var(--faint);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 600;
+}
+.head .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  animation: feeddot 2.4s ease-in-out infinite;
+}
+@keyframes feeddot {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.body {
+  position: relative;
+  padding: var(--sp-4);
+  overflow-x: auto;
+}
+
+.layer .line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  line-height: 1.8;
+  white-space: nowrap;
+}
+.sizer {
+  visibility: hidden;
+}
+.live {
+  position: absolute;
+  inset: var(--sp-4);
+}
+
+.lbl {
+  flex: none;
+  width: 5ch;
+  color: var(--faint);
+}
+
+.txt {
+  color: var(--dim);
+}
+.meta .txt {
+  color: var(--faint);
+}
+.hex .txt {
+  letter-spacing: 0.04em;
+}
+/* 0x16 — the byte that gives the handshake away. */
+.hex .b0 {
+  color: var(--link);
+  font-weight: 600;
+}
+.sni .txt {
+  color: var(--text);
+}
+.hash .txt {
+  color: var(--text);
+}
+.store .txt {
+  color: var(--link);
+}
+
+.ok {
+  color: var(--link);
+}
+.note {
+  color: var(--faint);
+}
+
+.rule {
+  border-top: var(--border-width) solid var(--line);
+  margin: var(--sp-2) 0;
+  height: 0;
+}
+
+.caret {
+  display: inline-block;
+  flex: none;
+  width: 0.6ch;
+  height: 1em;
+  transform: translateY(0.15em);
+  background: var(--amber);
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}

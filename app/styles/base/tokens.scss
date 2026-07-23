@@ -1,0 +1,391 @@
+/* ==========================================================================
+   tls-reputation.com — design tokens
+   --------------------------------------------------------------------------
+   A technical reference document, not a dashboard. Rules:
+     - soft corners (panels 13px, cards/inputs 11px, chips/buttons 6px)
+     - 1px --line borders, no shadows, no gradients, no glow
+     - exactly one accent (amber), used for links and the single active state
+     - --green / --red belong to the spread scale only, never to general UI
+     - whitespace instead of decoration
+     - one animation: fadeUp on the hero, plus .12s state transitions
+   Dark is the primary theme; light is the alternate.
+   ========================================================================== */
+
+:root {
+  /* ---- type ---- */
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo,
+    Consolas, "Liberation Mono", monospace;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+
+  --fs-xs: 0.6875rem; /* 11px — table meta, footnotes */
+  --fs-sm: 0.8125rem; /* 13px — table body, controls */
+  --fs-base: 0.875rem; /* 14px — prose */
+  --fs-md: 1rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: 1.75rem;
+  --fs-xxl: 2.5rem;
+
+  --lh-tight: 1.2;
+  --lh-base: 1.6;
+
+  /* ---- spacing scale (4px base) ---- */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4rem;
+
+  /* Vertical rhythm inside table rows and list rows. */
+  --row-pad: 11px;
+
+  /* ---- borders & radii ---- */
+  --border-width: 1px;
+
+  --radius-panel: 13px; /* tables, code blocks, large surfaces */
+  --radius-card: 11px; /* stat cards, inputs */
+  --radius-chip: 6px; /* buttons, segmented controls, chips */
+  --radius-bar: 3px; /* spread bars and other small meters */
+
+  --measure: 68ch; /* prose line length */
+  --page-max: 1180px;
+  --page-pad: 28px;
+
+  --transition: 0.12s ease;
+
+  /* ---- dark palette (primary) ---- */
+  --bg: oklch(0.17 0.008 255);
+  --panel: oklch(0.205 0.009 255);
+  --panel-2: oklch(0.238 0.009 255);
+  --line: oklch(0.29 0.01 255);
+  --line-strong: oklch(0.38 0.012 255);
+  --text: oklch(0.93 0.005 255);
+  --dim: oklch(0.65 0.01 255);
+  --faint: oklch(0.5 0.01 255);
+  --amber: oklch(0.8 0.13 78);
+  --green: oklch(0.76 0.14 155);
+  --red: oklch(0.68 0.18 22);
+  --link: oklch(0.82 0.11 80);
+  --amber-soft: color-mix(in srgb, var(--amber) 18%, transparent);
+  --on-amber: var(--bg); /* dark bg reads on the amber fill */
+  --focus: oklch(0.78 0.13 245);
+}
+
+/* The light palette. Manual override wins over the media query in both
+   directions: `[data-theme="light"]` forces it on, `[data-theme="dark"]`
+   keeps the :root defaults even when the OS prefers light. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: oklch(0.984 0.003 255);
+    --panel: oklch(1 0 0);
+    --panel-2: oklch(0.964 0.004 255);
+    --line: oklch(0.9 0.005 255);
+    --line-strong: oklch(0.8 0.008 255);
+    --text: oklch(0.24 0.012 255);
+    --dim: oklch(0.47 0.012 255);
+    --faint: oklch(0.62 0.01 255);
+    --amber: oklch(0.64 0.13 68);
+    --green: oklch(0.56 0.14 155);
+    --red: oklch(0.56 0.19 25);
+    --link: oklch(0.53 0.12 68);
+    --amber-soft: color-mix(in srgb, var(--amber) 13%, transparent);
+    --on-amber: var(--text); /* light --bg on amber is only 3.3:1 */
+    --focus: oklch(0.5 0.17 255);
+  }
+}
+
+:root[data-theme="light"] {
+  --bg: oklch(0.984 0.003 255);
+  --panel: oklch(1 0 0);
+  --panel-2: oklch(0.964 0.004 255);
+  --line: oklch(0.9 0.005 255);
+  --line-strong: oklch(0.8 0.008 255);
+  --text: oklch(0.24 0.012 255);
+  --dim: oklch(0.47 0.012 255);
+  --faint: oklch(0.62 0.01 255);
+  --amber: oklch(0.64 0.13 68);
+  --green: oklch(0.56 0.14 155);
+  --red: oklch(0.56 0.19 25);
+  --link: oklch(0.53 0.12 68);
+  --amber-soft: color-mix(in srgb, var(--amber) 13%, transparent);
+  --on-amber: var(--text); /* light --bg on amber is only 3.3:1 */
+  --focus: oklch(0.5 0.17 255);
+}
+
+/* ==========================================================================
+   reset / base
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  color-scheme: dark light;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: var(--lh-base);
+  -webkit-font-smoothing: antialiased;
+  /* The page body never scrolls sideways; wide content scrolls in its own box.
+     `clip` rather than `hidden`: `hidden` would make <body> a scroll container,
+     and the sticky masthead would then stick to a box that never scrolls. */
+  overflow-x: clip;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 600;
+  line-height: var(--lh-tight);
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-size: var(--fs-xl);
+}
+/* Section headings read as labels, not titles. */
+h2 {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--dim);
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+h3 {
+  font-size: var(--fs-base);
+}
+
+p {
+  margin: 0 0 var(--sp-4);
+  max-width: var(--measure);
+}
+
+a {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--link) 45%, transparent);
+  transition: color var(--transition), text-decoration-color var(--transition);
+}
+
+a:hover {
+  text-decoration-color: currentColor;
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.9375em;
+}
+
+/* Inline code reads as a chip; code inside <pre> stays plain. */
+:not(pre) > code {
+  background: var(--panel-2);
+  border: var(--border-width) solid var(--line);
+  border-radius: 4px;
+  padding: 0.05em 0.35em;
+}
+
+/* Every interactive element gets the same visible focus ring. It has to read
+   against --bg, --panel and --panel-2 alike, hence the offset + solid colour. */
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* The one animation. */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ==========================================================================
+   shared utilities
+   ========================================================================== */
+
+.page {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: var(--sp-6) var(--page-pad) var(--sp-8);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.nums {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+}
+
+.muted {
+  color: var(--dim);
+}
+
+.faint {
+  color: var(--faint);
+}
+
+.section {
+  margin-top: var(--sp-7);
+}
+
+.section > h2 {
+  padding-bottom: var(--sp-2);
+  border-bottom: var(--border-width) solid var(--line);
+  margin-bottom: var(--sp-4);
+}
+
+.footnote {
+  font-size: var(--fs-xs);
+  color: var(--dim);
+  max-width: var(--measure);
+  margin-top: var(--sp-3);
+  line-height: 1.5;
+}
+
+/* Status lines: plain text, never a spinner or shimmer. */
+.status {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--dim);
+  padding: var(--sp-4) 0;
+}
+
+.status--error {
+  color: var(--red);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* A --panel surface: the default container for content on the --bg page. */
+.panel {
+  background: var(--panel);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-panel);
+}
+
+/* Generic controls, shared by buttons/selects across views. */
+.control {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+  color: var(--dim);
+  background: var(--panel);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: var(--sp-2) var(--sp-3);
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition),
+    background-color var(--transition);
+}
+
+.control:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--line-strong);
+  background: var(--panel-2);
+}
+
+.control:disabled {
+  color: var(--faint);
+  cursor: default;
+}
+
+/* The active state outranks hover, so a pressed control keeps its accent.
+   Accent *text* uses --link, which clears 4.5:1 in both themes; --amber is
+   reserved for fills, borders and bars, where the bar is 3:1. */
+.control[aria-pressed="true"],
+.control[aria-pressed="true"]:hover,
+.control--active,
+.control--active:hover {
+  border-color: color-mix(in srgb, var(--amber) 55%, transparent);
+  color: var(--link);
+  background: var(--amber-soft);
+}
+
+/* Key/value definition rows used on detail pages. */
+.kv {
+  display: grid;
+  grid-template-columns: 12rem minmax(0, 1fr);
+  gap: var(--sp-2) var(--sp-4);
+  margin: 0;
+  font-size: var(--fs-sm);
+}
+
+.kv dt {
+  color: var(--dim);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-family: var(--font-mono);
+  padding-top: 0.15em;
+}
+
+.kv dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 34rem) {
+  .kv {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-1);
+  }
+  .kv dd {
+    margin-bottom: var(--sp-3);
+  }
+}

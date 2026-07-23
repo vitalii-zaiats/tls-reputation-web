@@ -1,0 +1,16 @@
+.graph-canvas {
+  position: relative;
+  background: var(--panel);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+}
+.graph-status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--dim);
+}

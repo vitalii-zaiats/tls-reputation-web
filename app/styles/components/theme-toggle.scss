@@ -1,0 +1,28 @@
+/* Rounded chips can't share borders, so they sit in a track instead. */
+.theme {
+  display: inline-flex;
+  gap: 3px;
+  padding: 3px;
+  background: var(--panel);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-chip);
+}
+
+.opt {
+  padding: var(--sp-1) var(--sp-2);
+  font-size: var(--fs-xs);
+  border-color: transparent;
+  background: none;
+}
+.opt:hover:not(:disabled) {
+  border-color: transparent;
+  color: var(--text);
+}
+
+/* The active segment has to be unmistakable: it is the only thing telling you
+   the choice was remembered. */
+.opt[aria-pressed="true"] {
+  background: var(--amber-soft);
+  color: var(--link);
+  border-color: transparent;
+}

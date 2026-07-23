@@ -1,0 +1,272 @@
+/* ---- hero ---- */
+.hero {
+  position: relative;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-top: calc(var(--sp-6) * -1); /* sit flush under the sticky masthead */
+}
+
+/* Abstract backdrop: a faint dot grid under a soft amber glow that falls from
+   the top, both from theme tokens (so they flip with light/dark) and masked to
+   fade toward the bottom — decoration, never a hard rectangle. */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(75% 55% at 50% -8%, var(--amber-soft), transparent 66%),
+    radial-gradient(
+      color-mix(in srgb, var(--line-strong) 42%, transparent) 1px,
+      transparent 1.6px
+    );
+  background-size: 100% 100%, 26px 26px;
+  background-position: center top, center;
+  -webkit-mask-image: radial-gradient(115% 88% at 50% 0%, #000 40%, transparent 80%);
+  mask-image: radial-gradient(115% 88% at 50% 0%, #000 40%, transparent 80%);
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: var(--sp-6) var(--page-pad);
+  animation: fadeUp 0.5s ease both;
+}
+
+/* Small mono kicker above the headline, in the site's label voice. */
+
+.hero h1 {
+  font-size: clamp(1.9rem, 1.2rem + 3vw, 2.75rem);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.lede {
+  margin: var(--sp-4) auto 0;
+  max-width: 40rem;
+  color: var(--dim);
+  font-size: var(--fs-md);
+}
+.lede strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.hero-lookup {
+  margin: var(--sp-6) auto 0;
+  max-width: 40rem;
+  text-align: left;
+}
+
+/* Corpus size as three quiet stat blocks: number over label, separated by
+   hairlines rather than boxes. */
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: var(--sp-6);
+  margin: var(--sp-7) auto 0;
+}
+.hero-stats > div {
+  display: flex;
+  flex-direction: column-reverse; /* dt precedes dd in markup; number shows on top */
+}
+.hero-stats > div + div {
+  border-left: var(--border-width) solid var(--line);
+  padding-left: var(--sp-6);
+}
+.hero-stats dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-lg);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.hero-stats dt {
+  margin-top: var(--sp-1);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+
+@media (max-width: 34rem) {
+  .hero-stats {
+    gap: var(--sp-4);
+  }
+  .hero-stats > div + div {
+    padding-left: var(--sp-4);
+  }
+}
+
+/* ---- how it works ---- */
+.how-intro {
+  max-width: var(--measure);
+  color: var(--dim);
+}
+.how-intro strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.how-fig {
+  margin: var(--sp-5) 0 0;
+  padding: var(--sp-5) var(--sp-5) var(--sp-4);
+}
+
+.how-fig figcaption {
+  display: flex;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+  margin-top: var(--sp-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--dim);
+}
+.key {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.key::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--faint);
+}
+.key--decoy::before {
+  background: var(--amber);
+}
+
+/* Steps on the left, the live capture replay on the right; stacked when
+   narrow. */
+.how-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+  gap: var(--sp-5) var(--sp-6);
+  align-items: start;
+  margin-top: var(--sp-5);
+}
+
+@media (max-width: 52rem) {
+  .how-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-4);
+  max-width: var(--measure);
+}
+.steps li {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr;
+  gap: var(--sp-3);
+  align-items: start;
+  font-size: var(--fs-sm);
+  color: var(--dim);
+}
+.steps .num {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--link);
+  border: var(--border-width) solid color-mix(in srgb, var(--amber) 45%, transparent);
+  border-radius: var(--radius-chip);
+  width: 1.5rem;
+  height: 1.5rem;
+  display: grid;
+  place-items: center;
+}
+
+/* ---- ALPN offers ---- */
+/* One accent + a neutral ramp, ordered by size — amber is the browser offer,
+   greys are the rest. Never a rainbow. */
+.alpn {
+  --c0: var(--amber);
+  --c1: color-mix(in srgb, var(--dim) 80%, var(--amber));
+  --c2: var(--dim);
+  --c3: color-mix(in srgb, var(--dim) 58%, var(--faint));
+  --c4: var(--faint);
+  --c-other: var(--line-strong);
+}
+
+.alpn-intro {
+  max-width: var(--measure);
+  color: var(--dim);
+}
+
+.alpn-wrap {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--sp-4) var(--sp-6);
+  align-items: center;
+  margin-top: var(--sp-5);
+}
+@media (max-width: 42rem) {
+  .alpn-wrap {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.donuts {
+  display: flex;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.alpn-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-1);
+  font-size: var(--fs-sm);
+  max-width: 21rem;
+}
+.alpn-legend li {
+  display: grid;
+  grid-template-columns: 12px auto 1fr;
+  gap: var(--sp-3);
+  align-items: center;
+}
+.alpn-legend .sw {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+.alpn-legend code {
+  color: var(--text);
+}
+.alpn-legend .pct {
+  text-align: right;
+  color: var(--dim);
+  font-size: var(--fs-xs);
+}
+
+.alpn-sub {
+  margin-top: var(--sp-6);
+}
+.alpn-sub-note {
+  margin: var(--sp-2) 0 var(--sp-4);
+  max-width: var(--measure);
+  color: var(--dim);
+  font-size: var(--fs-sm);
+}
+
+/* ---- home graph ---- */
+.hg-intro {
+  max-width: var(--measure);
+  color: var(--dim);
+  margin-bottom: var(--sp-4);
+}

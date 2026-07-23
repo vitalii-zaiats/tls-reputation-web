@@ -1,0 +1,141 @@
+.head {
+  max-width: var(--measure);
+}
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--dim);
+  margin-bottom: var(--sp-2);
+}
+.eyebrow .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+h1.ident {
+  font-size: var(--fs-lg);
+  overflow-wrap: anywhere;
+}
+.sub {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-sm);
+}
+
+.lead-read {
+  margin-top: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  align-items: flex-start;
+}
+.lead {
+  font-size: var(--fs-lg);
+  line-height: 1.4;
+  margin: 0;
+  color: var(--text);
+}
+
+.facts {
+  margin: var(--sp-4) 0 0;
+}
+.chip {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  padding: 2px var(--sp-2);
+  border-radius: var(--radius-chip);
+  border: var(--border-width) solid var(--line);
+  color: var(--dim);
+  white-space: nowrap;
+}
+.chip--warn {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--amber) 55%, transparent);
+  color: var(--link);
+}
+
+.synopsis {
+  margin-top: var(--sp-5);
+  grid-template-columns: 6rem minmax(0, 1fr);
+}
+
+.resolve {
+  margin-top: var(--sp-5);
+  padding: var(--sp-4);
+  font-size: var(--fs-sm);
+}
+.rtitle {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+  margin-bottom: var(--sp-2);
+}
+.rlist {
+  list-style: none;
+  margin: 0 0 var(--sp-2);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  font-size: var(--fs-sm);
+}
+.resolve .footnote {
+  margin-top: var(--sp-2);
+}
+
+.explore {
+  margin-top: var(--sp-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+}
+
+.lede {
+  font-size: var(--fs-sm);
+  margin-bottom: var(--sp-3);
+}
+
+.anat-r {
+  font-size: var(--fs-sm);
+  overflow-wrap: anywhere;
+}
+.anat-note {
+  margin-top: var(--sp-2);
+}
+.meta {
+  margin-top: var(--sp-4);
+  grid-template-columns: 12rem minmax(0, 1fr);
+}
+.pq-yes {
+  color: var(--link);
+}
+.pq-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  margin-right: var(--sp-1);
+}
+
+.anat-grid {
+  margin-top: var(--sp-5);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--sp-5);
+}
+
+.reach-tbl {
+  margin-top: var(--sp-4);
+}
+.pager {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-top: var(--sp-4);
+  font-size: var(--fs-sm);
+}

@@ -1,0 +1,56 @@
+.tabs {
+  margin-top: var(--sp-4);
+}
+
+.filters {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+  margin: var(--sp-4) 0;
+}
+.fld {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.fld > span {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+}
+select.control {
+  max-width: 22rem;
+}
+.fld .bar {
+  margin: 0;
+}
+.arrow {
+  margin-left: 0.35em;
+  opacity: 0.85;
+}
+
+.chip {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  padding: 1px var(--sp-2);
+  border-radius: var(--radius-chip);
+  border: var(--border-width) solid var(--line);
+  color: var(--dim);
+  white-space: nowrap;
+}
+.chip--randomizing {
+  color: var(--link);
+  border-color: color-mix(in srgb, var(--amber) 45%, transparent);
+  background: var(--amber-soft);
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-top: var(--sp-4);
+  font-size: var(--fs-sm);
+}

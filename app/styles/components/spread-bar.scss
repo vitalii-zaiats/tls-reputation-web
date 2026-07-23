@@ -1,0 +1,27 @@
+.spread {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  vertical-align: middle;
+}
+
+.track {
+  height: 6px;
+  background: var(--panel-2);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-bar);
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  background: var(--amber);
+  border-radius: var(--radius-bar);
+}
+
+.val {
+  font-size: var(--fs-xs);
+  color: var(--dim);
+}

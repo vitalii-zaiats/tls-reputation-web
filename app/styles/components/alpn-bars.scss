@@ -1,0 +1,99 @@
+/* Compact rows: offer | bar | named-share on one line, the client split as a
+   small legend line under the bar. */
+.alpn-bars {
+  /* amber ramp for named clients (darkest = biggest), neutral for anonymous */
+  --a0: var(--amber);
+  --a1: color-mix(in srgb, var(--amber) 66%, var(--dim));
+  --a2: color-mix(in srgb, var(--amber) 42%, var(--dim));
+  --a3: color-mix(in srgb, var(--amber) 24%, var(--dim));
+  --a-rest: color-mix(in srgb, var(--amber) 26%, var(--faint));
+  --anon: var(--line-strong);
+  display: grid;
+  gap: var(--sp-4);
+  max-width: 56rem;
+}
+
+.arow {
+  display: grid;
+  grid-template-columns: minmax(8rem, max-content) minmax(0, 1fr) max-content;
+  column-gap: var(--sp-4);
+  row-gap: var(--sp-1);
+  align-items: center;
+}
+
+.off {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: start;
+  font-size: var(--fs-xs);
+  color: var(--text);
+}
+.abar {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  gap: 2px;
+  height: 9px;
+  border-radius: var(--radius-bar);
+  overflow: hidden;
+}
+.known {
+  grid-column: 3;
+  grid-row: 1;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--dim);
+  white-space: nowrap;
+}
+.alabels {
+  grid-column: 2 / -1;
+  grid-row: 2;
+}
+
+.aseg {
+  flex-grow: 0;
+  flex-shrink: 1;
+  min-width: 2px;
+  border-radius: 2px;
+}
+
+.alabels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-4);
+  font-size: var(--fs-xs);
+  color: var(--dim);
+}
+.alab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.alab .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 40rem) {
+  .arow {
+    grid-template-columns: minmax(0, 1fr) max-content;
+  }
+  .off {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .known {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .abar {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .alabels {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+}

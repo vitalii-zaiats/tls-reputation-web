@@ -1,0 +1,129 @@
+.skip {
+  position: absolute;
+  left: -9999px;
+}
+.skip:focus {
+  left: var(--sp-4);
+  top: var(--sp-2);
+  z-index: 30;
+  background: var(--panel);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-chip);
+  padding: var(--sp-2) var(--sp-3);
+  text-decoration: none;
+}
+
+/* Sticky and borderless: the translucent blur alone separates it from
+   whatever scrolls beneath. */
+.masthead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.masthead-inner,
+.footer-inner {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: var(--sp-3) var(--page-pad);
+}
+
+.masthead-inner {
+  padding-top: var(--sp-4);
+  padding-bottom: var(--sp-4);
+}
+
+.masthead-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  margin-right: auto;
+  min-width: 0;
+}
+
+.wordmark {
+  font-family: var(--font-mono);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--transition);
+}
+.wordmark:hover {
+  color: var(--link);
+}
+
+/* Two-tone brand, like the site cards: "reputation" carries the accent. Uses
+   --link (the accent-text token, contrast-safe in both themes) rather than
+   --amber, which is reserved for fills, borders and bars. */
+.wordmark .accent {
+  color: var(--link);
+}
+
+.tagline {
+  font-size: var(--fs-xs);
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+/* Quiet chips instead of underlines — suits the borderless header. */
+.nav {
+  display: flex;
+  gap: var(--sp-1);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+}
+.nav a {
+  color: var(--dim);
+  text-decoration: none;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--radius-chip);
+  transition: color var(--transition), background-color var(--transition);
+}
+.nav a:hover {
+  color: var(--text);
+  background: var(--panel-2);
+}
+/* The one active state, in the one accent colour. */
+.nav a.router-link-active {
+  color: var(--link);
+  background: var(--amber-soft);
+}
+
+.header-lookup {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 0 var(--page-pad) var(--sp-3);
+}
+
+.footer {
+  border-top: var(--border-width) solid var(--line);
+  margin-top: var(--sp-8);
+}
+.line {
+  font-size: var(--fs-xs);
+  color: var(--dim);
+  margin: 0 0 var(--sp-1);
+  max-width: var(--measure);
+}
+
+@media (max-width: 40rem) {
+  .tagline {
+    display: none;
+  }
+  .brand {
+    margin-right: 0;
+    width: 100%;
+  }
+}

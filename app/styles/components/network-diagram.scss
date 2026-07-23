@@ -1,0 +1,92 @@
+.net {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Flowing traffic along the curves. Dash period is 9 in both variants and the
+   offset travels -18 per cycle, so the loop is seamless; per-edge negative
+   delays keep the dashes from marching in lockstep. */
+.edges path {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0.5;
+  stroke-dasharray: 2 7;
+  animation: flow 2.4s linear infinite;
+  animation-delay: calc(var(--d) * -0.37s);
+}
+.edges path.tap {
+  stroke: var(--amber);
+  stroke-width: 1.5;
+  opacity: 0.9;
+  stroke-dasharray: 3 6;
+  animation-duration: 1.4s;
+}
+@keyframes flow {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+
+.node--attacker .ring {
+  fill: var(--panel-2);
+  stroke: var(--dim);
+  stroke-width: 1.5;
+}
+.node--attacker .dot {
+  fill: var(--dim);
+}
+
+.node--backbone {
+  fill: var(--panel-2);
+  stroke: var(--dim);
+  stroke-width: 1.5;
+}
+
+.peer {
+  fill: var(--faint);
+}
+
+.node--target rect {
+  fill: var(--panel-2);
+  stroke: var(--text);
+  stroke-width: 1.5;
+}
+.node--target line {
+  stroke: var(--dim);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+.decoy .core {
+  fill: var(--amber);
+}
+.decoy .halo {
+  fill: none;
+  stroke: var(--amber);
+  stroke-width: 1.2;
+  opacity: 0.2;
+  animation: netpulse 3s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.5s);
+}
+@keyframes netpulse {
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Same label voice as the site's h2 section labels. */
+.col-label {
+  fill: var(--faint);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

@@ -1,0 +1,29 @@
+.copy {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+.copy-text {
+  overflow-wrap: anywhere;
+}
+.copy-ico {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--faint);
+  transition: color var(--transition);
+}
+.copy:hover .copy-ico {
+  color: var(--link);
+}
+.copy-ico.ok {
+  color: var(--link);
+}
