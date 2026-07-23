@@ -1,8 +1,9 @@
 // tls-reputation.com — Nuxt frontend.
 //
-// The app calls its API same-origin at /api/v1; the routeRules proxy below
-// forwards that to the real backend, so there is never a CORS hop — in dev or
-// in production. Point NUXT_API_ORIGIN at a local backend for development.
+// The app calls the API directly at api.tls-reputation.com — a public,
+// CORS-open read API — from the browser and the SSR worker alike, in dev and
+// in production. Override the base for a local backend with
+// NUXT_PUBLIC_API_BASE=http://localhost:8000/api/v1.
 
 // Runs before first paint on the client to avoid a theme flash: reassert the
 // remembered theme onto <html> before Vue hydrates. SSR has no localStorage, so
@@ -21,16 +22,11 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: "/api/v1",
-    },
-  },
-
-  routeRules: {
-    // Same-origin API proxy. Defaults to the live API so a fresh checkout
-    // renders real data out of the box; set NUXT_API_ORIGIN=http://localhost:8000
-    // to develop against a local backend.
-    "/api/**": {
-      proxy: `${process.env.NUXT_API_ORIGIN || "https://tls-reputation.com"}/api/**`,
+      // The API lives on its own subdomain, Cloudflare-proxied and CORS-open,
+      // so the browser and the SSR worker both call it directly — no
+      // same-origin proxy hop. Override with NUXT_PUBLIC_API_BASE to point at
+      // a local backend.
+      apiBase: "https://api.tls-reputation.com/api/v1",
     },
   },
 
