@@ -101,6 +101,67 @@
   background: var(--amber-soft);
 }
 
+/* The disclosure button. Hidden until the nav no longer fits — see the
+   breakpoint at the bottom of this file, which is the only place it is shown. */
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 30px;
+  padding: 0;
+  background: var(--panel);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-chip);
+  color: var(--dim);
+  cursor: pointer;
+  transition: color var(--transition), background-color var(--transition);
+}
+.nav-toggle:hover {
+  color: var(--text);
+  background: var(--panel-2);
+}
+
+/* Three bars from one element: the middle is the box itself, the outer two are
+   its pseudo-elements. On open the outer bars rotate onto the centre line and
+   the middle one goes transparent, which is the usual X — transforms only, so
+   it composites rather than relayouts.
+   The middle bar is hidden with `background`, not `opacity`: opacity on the
+   parent would group its pseudo-children and fade the X away with it. */
+.nav-toggle .bars,
+.nav-toggle .bars::before,
+.nav-toggle .bars::after {
+  display: block;
+  width: 16px;
+  height: 1.5px;
+  background: currentcolor;
+  transition: transform var(--transition), background-color var(--transition);
+}
+.nav-toggle .bars {
+  position: relative;
+}
+.nav-toggle .bars::before,
+.nav-toggle .bars::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+.nav-toggle .bars::before {
+  transform: translateY(-5px);
+}
+.nav-toggle .bars::after {
+  transform: translateY(5px);
+}
+.nav-toggle[aria-expanded="true"] .bars {
+  background: transparent;
+}
+.nav-toggle[aria-expanded="true"] .bars::before {
+  transform: rotate(45deg);
+}
+.nav-toggle[aria-expanded="true"] .bars::after {
+  transform: rotate(-45deg);
+}
+
 .header-lookup {
   max-width: var(--page-max);
   margin: 0 auto;
@@ -118,12 +179,60 @@
   max-width: var(--measure);
 }
 
+/* Six mono links, the wordmark and the theme switch need roughly 840px of bar.
+   Below that they collapsed into two and three ragged rows of chips, so from
+   here the links go behind the disclosure button and open as a full-width
+   column under it.
+
+   Order rather than markup: the button and the switch stay on the brand's row
+   while .nav wraps to its own line. .theme is ThemeToggle's root, which carries
+   this layout's scope id, so ordering it from here is in bounds. */
+@media (max-width: 52rem) {
+  .nav-toggle {
+    display: inline-flex;
+    order: 2;
+  }
+  .theme {
+    order: 3;
+  }
+
+  .nav {
+    order: 4;
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    /* A short phone in landscape must still be able to reach `docs`. */
+    max-height: calc(100vh - 8rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .nav.is-open {
+    display: flex;
+  }
+
+  /* Full-width rows: chips are a pointer affordance, and these are thumbs.
+     44px is the tap target everyone converged on. */
+  .nav a {
+    padding: var(--sp-3) var(--sp-2);
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border-radius: 0;
+  }
+  .nav a + a {
+    border-top: var(--border-width) solid var(--line);
+  }
+  .nav a.router-link-active {
+    /* The chip's rounded fill reads as a stray box once it is a full-width row;
+       a leading rule in the accent says the same thing more quietly. */
+    background: transparent;
+    box-shadow: inset 2px 0 0 var(--link);
+  }
+}
+
 @media (max-width: 40rem) {
   .tagline {
     display: none;
-  }
-  .brand {
-    margin-right: 0;
-    width: 100%;
   }
 }
