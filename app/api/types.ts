@@ -160,6 +160,18 @@ export interface RootList {
   total: number
 }
 
+/** One real SNI that folds into a registrable domain (the roots drill-down). */
+export interface RootHostname {
+  sni: string
+  observations: number
+  unique_fingerprints: number
+}
+
+export interface RootHostnameList {
+  items: RootHostname[]
+  total: number
+}
+
 // ────────────────────────────── catalog / meta ────────────────────────────
 
 export interface Stats {

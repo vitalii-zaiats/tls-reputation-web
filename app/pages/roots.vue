@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRootService } from "~/api/services/root"
-import type { RootSummary } from "~/api/types"
+import type { RootHostname, RootSummary } from "~/api/types"
 
 const roots = useRootService()
 const route = useRoute()
@@ -27,6 +27,37 @@ const { data, pending } = await useAsyncData(
 
 const items = computed<RootSummary[]>(() => data.value?.items || [])
 const total = computed(() => data.value?.total || 0)
+
+// Drill-down: the real SNIs under a root. The bare root is often never an
+// observed SNI itself, so linking it would 404 — expand to the hostnames that
+// actually exist. Lazy-loaded and cached per domain.
+type SubState = "loading" | "error" | RootHostname[]
+const open = ref(new Set<string>())
+const subs = ref<Record<string, SubState>>({})
+
+const isOpen = (d: string) => open.value.has(d)
+const hostsOf = (d: string): RootHostname[] => {
+  const s = subs.value[d]
+  return Array.isArray(s) ? s : []
+}
+
+async function loadHostnames(d: string) {
+  subs.value[d] = "loading"
+  try {
+    const r = await roots.hostnames(d, { limit: 100 })
+    subs.value[d] = r.items
+  } catch {
+    subs.value[d] = "error"
+  }
+}
+function toggle(d: string) {
+  if (open.value.has(d)) {
+    open.value.delete(d)
+  } else {
+    open.value.add(d)
+    if (subs.value[d] === undefined) loadHostnames(d)
+  }
+}
 
 function pickSort(s: SortKey) {
   if (sort.value === s) {
@@ -100,14 +131,46 @@ useSeoMeta({
         </tr>
       </tbody>
       <tbody v-else>
-        <tr v-for="d in items" :key="d.domain">
-          <td>
-            <NuxtLink :to="`/sni/${encodeURIComponent(d.domain)}`" class="mono">{{ d.domain }}</NuxtLink>
-          </td>
-          <td class="r">{{ formatNum(d.hostnames) }}</td>
-          <td class="r">{{ formatNum(d.clients) }}</td>
-          <td class="r">{{ formatNum(d.observations) }}</td>
-        </tr>
+        <template v-for="d in items" :key="d.domain">
+          <tr class="root-row" :class="{ open: isOpen(d.domain) }">
+            <td>
+              <button
+                type="button"
+                class="toggle"
+                :aria-expanded="isOpen(d.domain)"
+                @click="toggle(d.domain)"
+              >
+                <span class="chev" :class="{ open: isOpen(d.domain) }">▸</span>
+                <span class="mono">{{ d.domain }}</span>
+              </button>
+            </td>
+            <td class="r">{{ formatNum(d.hostnames) }}</td>
+            <td class="r">{{ formatNum(d.clients) }}</td>
+            <td class="r">{{ formatNum(d.observations) }}</td>
+          </tr>
+          <tr v-if="isOpen(d.domain)" class="sub-row">
+            <td colspan="4" class="sub-cell">
+              <div v-if="subs[d.domain] === 'loading'" class="sub-load">
+                <Skeleton :lines="3" height="0.95rem" :width="['46%', '36%', '52%']" gap="0.45rem" />
+              </div>
+              <p v-else-if="subs[d.domain] === 'error'" class="muted sub-msg">
+                Couldn’t load hostnames.
+                <button type="button" class="link" @click="loadHostnames(d.domain)">retry</button>
+              </p>
+              <ul v-else class="subs">
+                <li v-for="h in hostsOf(d.domain)" :key="h.sni">
+                  <NuxtLink :to="`/sni/${encodeURIComponent(h.sni)}`" class="mono sub-sni">{{ h.sni }}</NuxtLink>
+                  <span class="sub-meta muted">
+                    {{ formatNum(h.unique_fingerprints) }} clients · {{ formatNum(h.observations) }} obs
+                  </span>
+                </li>
+                <li v-if="hostsOf(d.domain).length < d.hostnames" class="muted sub-more">
+                  … and {{ formatNum(d.hostnames - hostsOf(d.domain).length) }} more
+                </li>
+              </ul>
+            </td>
+          </tr>
+        </template>
         <tr v-if="!items.length">
           <td colspan="4" class="muted empty">No domains.</td>
         </tr>
@@ -177,5 +240,66 @@ useSeoMeta({
 }
 .range {
   font-size: 0.85rem;
+}
+
+/* drill-down accordion */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.chev {
+  display: inline-block;
+  width: 0.8rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+.chev.open {
+  transform: rotate(90deg);
+}
+.toggle:hover .mono {
+  color: var(--accent, inherit);
+}
+.sub-row .sub-cell {
+  padding: 0.3rem 0 0.7rem 1.9rem;
+  background: var(--panel, rgba(127, 127, 127, 0.03));
+}
+.sub-load {
+  padding: 0.2rem 0;
+}
+.subs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.subs li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+.sub-meta,
+.sub-msg,
+.sub-more {
+  font-size: 0.82rem;
+}
+.link {
+  padding: 0;
+  font: inherit;
+  color: var(--accent, inherit);
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 </style>
