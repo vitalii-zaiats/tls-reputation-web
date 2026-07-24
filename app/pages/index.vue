@@ -112,6 +112,48 @@ const FAQ = [
   },
 ]
 
+// --- backdrop: the dot field sharpens under the pointer ---
+// Decoration, so it stays cheap: one rAF-coalesced listener writing two custom
+// properties, no reactive state, and nothing at all under reduced motion.
+//
+// Gated on a fine, hovering pointer. Touchscreens do fire pointermove — during
+// a drag — so without this a scroll would light the spotlight and strand it
+// wherever the finger left the glass, with no way to move it again.
+const dotField = ref<HTMLElement | null>(null)
+let stopTracking: (() => void) | null = null
+
+onMounted(() => {
+  const el = dotField.value
+  if (!el) return
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return
+
+  let x = 0
+  let y = 0
+  let queued = false
+
+  const paint = () => {
+    queued = false
+    el.style.setProperty("--mx", `${x}px`)
+    el.style.setProperty("--my", `${y}px`)
+  }
+
+  const onMove = (e: PointerEvent) => {
+    x = e.clientX
+    y = e.clientY
+    el.classList.add("is-lit")
+    if (!queued) {
+      queued = true
+      requestAnimationFrame(paint)
+    }
+  }
+
+  window.addEventListener("pointermove", onMove, { passive: true })
+  stopTracking = () => window.removeEventListener("pointermove", onMove)
+})
+
+onBeforeUnmount(() => stopTracking?.())
+
 useHead({
   script: [
     {
@@ -131,9 +173,9 @@ useHead({
 </script>
 
 <template>
-  <section class="hero">
-    <div class="hero-bg" aria-hidden="true"></div>
+  <div ref="dotField" class="dot-field" aria-hidden="true"></div>
 
+  <section class="hero">
     <div class="hero-inner">
       <h1>A public, free lookup service for TLS client fingerprints.</h1>
       <p class="lede">

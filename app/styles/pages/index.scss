@@ -9,24 +9,125 @@
   margin-top: calc(var(--sp-6) * -1); /* sit flush under the sticky masthead */
 }
 
-/* Abstract backdrop: a faint dot grid under a soft amber glow that falls from
-   the top, both from theme tokens (so they flip with light/dark) and masked to
-   fade toward the bottom — decoration, never a hard rectangle. */
-.hero-bg {
+/* Abstract backdrop: a faint dot grid from the theme tokens, so it flips with
+   light/dark. Fixed to the viewport rather than absolute inside .hero — the
+   field belongs to the page, not to one section, and it holds still while the
+   content scrolls over it. z-index -1 puts it above the canvas background that
+   <body> propagates and below every bit of content, so nothing needs a
+   competing z-index to stay on top. */
+.dot-field {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  --dot-gap: 26px;
+  /* Where the highlight sits until the pointer says otherwise. It is never
+     shown at these coordinates — .is-lit is what reveals it — but the mask
+     still has to resolve to something on the first paint. */
+  --mx: 50vw;
+  --my: 45vh;
+
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--line-strong) 42%, transparent) 1px,
+    transparent 1.6px
+  );
+  background-size: var(--dot-gap) var(--dot-gap);
+  background-position: center;
+
+  /* Softens the extreme edges so the field reads as atmosphere rather than a
+     tiled rectangle that stops dead at the window. */
+  -webkit-mask-image: radial-gradient(125% 115% at 50% 40%, #000 55%, transparent 100%);
+  mask-image: radial-gradient(125% 115% at 50% 40%, #000 55%, transparent 100%);
+}
+
+/* The highlight: the same grid at full strength and a hair fatter, revealed
+   through a circular mask parked on the pointer — the dots sharpen where you
+   point instead of the page lighting up. Same box and same background-size as
+   the layer underneath, so the two grids land on each other exactly and the
+   dots grow rather than double.
+
+   Only mask-position moves per frame. Animating that is a cheap composite;
+   rebuilding a gradient across the whole viewport every frame would not be. */
+.dot-field::after {
+  --spot: 420px;
+
+  content: "";
   position: absolute;
   inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-image:
-    radial-gradient(75% 55% at 50% -8%, var(--amber-soft), transparent 66%),
-    radial-gradient(
-      color-mix(in srgb, var(--line-strong) 42%, transparent) 1px,
-      transparent 1.6px
-    );
-  background-size: 100% 100%, 26px 26px;
-  background-position: center top, center;
-  -webkit-mask-image: radial-gradient(115% 88% at 50% 0%, #000 40%, transparent 80%);
-  mask-image: radial-gradient(115% 88% at 50% 0%, #000 40%, transparent 80%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+
+  background-image: radial-gradient(var(--line-strong) 1.3px, transparent 1.9px);
+  background-size: var(--dot-gap) var(--dot-gap);
+  background-position: center;
+
+  -webkit-mask-image: radial-gradient(
+    circle closest-side,
+    rgb(0 0 0 / 1) 0%,
+    rgb(0 0 0 / 0.45) 55%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    circle closest-side,
+    rgb(0 0 0 / 1) 0%,
+    rgb(0 0 0 / 0.45) 55%,
+    transparent 100%
+  );
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: var(--spot) var(--spot);
+  mask-size: var(--spot) var(--spot);
+  -webkit-mask-position: calc(var(--mx) - var(--spot) / 2) calc(var(--my) - var(--spot) / 2);
+  mask-position: calc(var(--mx) - var(--spot) / 2) calc(var(--my) - var(--spot) / 2);
+}
+
+/* Set by the page once a real pointer has moved. Absent on touch, and the
+   listener is never attached under reduced motion. */
+.dot-field.is-lit::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot-field::after {
+    display: none;
+  }
+}
+
+/* No hovering pointer, no highlight — the page gates the listener on the same
+   query, and this makes the stylesheet say so too rather than leaving the rule
+   live and unreachable. */
+@media (hover: none), (pointer: coarse) {
+  .dot-field::after {
+    display: none;
+  }
+}
+
+/* Small screens: a 26px lattice is coarse texture on a 375px-wide viewport, and
+   a 420px spotlight would be wider than the window — which is no longer a
+   spotlight. Tighten both, and pull the edge mask outward so the field does not
+   fade to nothing across a narrow column. */
+@media (max-width: 34rem) {
+  .dot-field {
+    --dot-gap: 19px;
+
+    -webkit-mask-image: radial-gradient(150% 105% at 50% 42%, #000 62%, transparent 100%);
+    mask-image: radial-gradient(150% 105% at 50% 42%, #000 62%, transparent 100%);
+  }
+  .dot-field::after {
+    --spot: 240px;
+  }
+}
+
+/* Tablets and small laptops sit between the two — a pointer is still likely
+   here, so only the scale changes. */
+@media (min-width: 34.0625rem) and (max-width: 52rem) {
+  .dot-field {
+    --dot-gap: 22px;
+  }
+  .dot-field::after {
+    --spot: 320px;
+  }
 }
 
 .hero-inner {
