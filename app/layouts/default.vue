@@ -20,6 +20,7 @@ const showHeaderLookup = computed(() => route.name !== "index")
         <NuxtLink to="/roots">roots</NuxtLink>
         <NuxtLink to="/graph">graph</NuxtLink>
         <NuxtLink to="/fingerprint">your fingerprint</NuxtLink>
+        <NuxtLink to="/use-case">use case</NuxtLink>
         <NuxtLink to="/docs">docs</NuxtLink>
       </nav>
 
