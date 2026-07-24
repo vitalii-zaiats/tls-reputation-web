@@ -6,7 +6,7 @@ const roots = useRootService()
 const route = useRoute()
 const router = useRouter()
 
-const SORTS = ["observations", "hostnames", "domain"] as const
+const SORTS = ["observations", "clients", "targeting", "hostnames", "domain"] as const
 type SortKey = (typeof SORTS)[number]
 const PAGE = 50
 
@@ -61,7 +61,9 @@ useSeoMeta({
     Every observed server name folded to its registrable domain (eTLD+1), so
     subdomain sprawl collapses — the hundreds of per-widget
     <code>*.w.hcaptcha.com</code> hosts become one <code>hcaptcha.com</code>.
-    <strong>hostnames</strong> counts the distinct SNIs that fold into each.
+    <strong>hostnames</strong> is the distinct SNIs folded in; <strong>clients</strong>
+    the distinct fingerprints reaching it. Many observations behind few clients is
+    one operator hammering — <strong>sort by targeting</strong> to surface it.
     <span class="muted">{{ formatNum(total) }} domains.</span>
   </p>
 
@@ -85,12 +87,14 @@ useSeoMeta({
         <tr>
           <th>domain</th>
           <th class="r">hostnames</th>
+          <th class="r">clients</th>
           <th class="r">observations</th>
         </tr>
       </thead>
       <tbody v-if="pending">
         <tr v-for="i in 12" :key="`sk-${i}`">
           <td><Skeleton height="1.05rem" :width="['58%', '42%', '66%', '50%'][i % 4]" /></td>
+          <td class="r"><Skeleton class="sk-r" height="1.05rem" width="2.5rem" /></td>
           <td class="r"><Skeleton class="sk-r" height="1.05rem" width="2.5rem" /></td>
           <td class="r"><Skeleton class="sk-r" height="1.05rem" width="4rem" /></td>
         </tr>
@@ -101,10 +105,11 @@ useSeoMeta({
             <NuxtLink :to="`/sni/${encodeURIComponent(d.domain)}`" class="mono">{{ d.domain }}</NuxtLink>
           </td>
           <td class="r">{{ formatNum(d.hostnames) }}</td>
+          <td class="r">{{ formatNum(d.clients) }}</td>
           <td class="r">{{ formatNum(d.observations) }}</td>
         </tr>
         <tr v-if="!items.length">
-          <td colspan="3" class="muted empty">No domains.</td>
+          <td colspan="4" class="muted empty">No domains.</td>
         </tr>
       </tbody>
     </table>

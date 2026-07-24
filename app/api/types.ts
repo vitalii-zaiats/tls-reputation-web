@@ -151,6 +151,7 @@ export interface DomainList {
 export interface RootSummary {
   domain: string
   hostnames: number
+  clients: number
   observations: number
 }
 
