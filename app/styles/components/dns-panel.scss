@@ -1,0 +1,108 @@
+/* Live DNS for the name in the header. Sits in the column the measure-capped
+   header leaves empty on a wide screen; drops under it below that. */
+.dns {
+  padding: var(--sp-4) var(--sp-5);
+  min-width: 0;
+}
+
+.dns .eyebrow {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--dim);
+  margin: 0 0 var(--sp-3);
+}
+
+.dns-load {
+  padding: var(--sp-1) 0;
+}
+
+.dns-note {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+}
+.dns-strong {
+  font-family: var(--font-mono);
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* The alias chain, indented step by step so a CDN hop reads as a hop. */
+.dns-chain {
+  list-style: none;
+  margin: 0 0 var(--sp-4);
+  padding: 0;
+  font-size: var(--fs-sm);
+  color: var(--dim);
+}
+.dns-chain li {
+  overflow-wrap: anywhere;
+}
+.dns-chain li + li {
+  margin-top: var(--sp-1);
+  padding-left: var(--sp-3);
+}
+.dns-arrow {
+  color: var(--faint);
+  margin-right: var(--sp-2);
+}
+.dns-chain li:first-child .dns-arrow {
+  display: none;
+}
+
+.dns-recs {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+  gap: var(--sp-2) var(--sp-3);
+  margin: 0;
+  font-size: var(--fs-sm);
+}
+.dns-recs dt {
+  color: var(--faint);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  padding-top: 1px;
+}
+.dns-recs dd {
+  margin: 0;
+  min-width: 0;
+}
+.dns-recs ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.dns-recs li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+.dns-recs li + li {
+  margin-top: var(--sp-1);
+}
+.dns-recs li span:first-child {
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+/* v6 is long; let it shrink a step rather than wrap the TTL off the edge. */
+.dns-v6 {
+  font-size: var(--fs-xs);
+}
+
+.dns-ttl {
+  flex: none;
+  font-size: var(--fs-xs);
+  color: var(--faint);
+}
+
+.dns-foot {
+  margin: var(--sp-4) 0 0;
+  padding-top: var(--sp-3);
+  border-top: var(--border-width) solid var(--line);
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--faint);
+}

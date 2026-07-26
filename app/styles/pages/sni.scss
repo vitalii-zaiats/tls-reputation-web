@@ -1,5 +1,26 @@
+/* The header is capped at the prose measure, which on a wide screen left the
+   right half of the page empty. The live DNS panel takes that column: it is the
+   one thing about a server name the corpus deliberately does not know, so it
+   belongs beside the record rather than inside it. */
+.head-grid {
+  display: grid;
+  grid-template-columns: minmax(0, var(--measure)) minmax(0, 1fr);
+  gap: var(--sp-6);
+  align-items: start;
+}
+
 .head {
   max-width: var(--measure);
+  min-width: 0;
+}
+
+/* Below this the two columns would each be too narrow to read — a v6 address
+   alone is 39 characters — so the panel drops under the header instead. */
+@media (max-width: 62rem) {
+  .head-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-5);
+  }
 }
 .eyebrow {
   display: flex;

@@ -69,33 +69,37 @@ useSeoMeta({
 
   <template v-else-if="data">
     <!-- ============ HEADER ============ -->
-    <header class="head">
-      <p class="eyebrow mono">
-        <span v-if="isAuth" class="dot" aria-hidden="true"></span>{{ isAuth ? "auth surface" : "server name" }}
-      </p>
-      <h1 class="mono ident">{{ name }}</h1>
+    <div class="head-grid">
+      <header class="head">
+        <p class="eyebrow mono">
+          <span v-if="isAuth" class="dot" aria-hidden="true"></span>{{ isAuth ? "auth surface" : "server name" }}
+        </p>
+        <h1 class="mono ident">{{ name }}</h1>
 
-      <div class="lead-read">
-        <VerdictChip v-if="verdict" :tone="verdict.tone" :label="verdict.label" />
-        <p v-if="verdict" class="lead">{{ verdict.lead }}</p>
-      </div>
+        <div class="lead-read">
+          <VerdictChip v-if="verdict" :tone="verdict.tone" :label="verdict.label" />
+          <p v-if="verdict" class="lead">{{ verdict.lead }}</p>
+        </div>
 
-      <div class="bar facts">
-        <span v-if="isAuth" class="chip chip--accent">auth</span>
-        <span class="chip">{{ formatNum(data.unique_fingerprints) }} clients</span>
-        <span class="chip">{{ formatNum(data.observations) }} obs</span>
-        <span class="chip">{{ formatDate(data.first_seen) }} → {{ formatDate(data.last_seen) }}</span>
-      </div>
+        <div class="bar facts">
+          <span v-if="isAuth" class="chip chip--accent">auth</span>
+          <span class="chip">{{ formatNum(data.unique_fingerprints) }} clients</span>
+          <span class="chip">{{ formatNum(data.observations) }} obs</span>
+          <span class="chip">{{ formatDate(data.first_seen) }} → {{ formatDate(data.last_seen) }}</span>
+        </div>
 
-      <dl class="kv synopsis">
-        <dt>domain</dt>
-        <dd><CopyText :text="name" /></dd>
-      </dl>
+        <dl class="kv synopsis">
+          <dt>domain</dt>
+          <dd><CopyText :text="name" /></dd>
+        </dl>
 
-      <p class="explore">
-        <NuxtLink :to="`/graph?focus=${encodeURIComponent(name)}`">explore in graph →</NuxtLink>
-      </p>
-    </header>
+        <p class="explore">
+          <NuxtLink :to="`/graph?focus=${encodeURIComponent(name)}`">explore in graph →</NuxtLink>
+        </p>
+      </header>
+
+      <DnsPanel :name="name" />
+    </div>
 
     <!-- ============ READ ============ -->
     <section class="section">
