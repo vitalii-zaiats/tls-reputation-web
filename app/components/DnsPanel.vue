@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { RCODE_NXDOMAIN, resolveName, type DnsAnswer } from "~/api/doh"
+import {
+  RCODE_NXDOMAIN,
+  resolveName,
+  resolveOrigins,
+  type DnsAnswer,
+  type OriginGroup,
+} from "~/api/doh"
 
 const props = defineProps<{ name: string }>()
 
@@ -7,12 +13,31 @@ const data = ref<DnsAnswer | null>(null)
 const pending = ref(true)
 const failed = ref(false)
 
+// Second phase, and allowed to be slower or to fail on its own: the addresses
+// are the answer, the AS behind them is the annotation.
+const origins = ref<OriginGroup[]>([])
+const originsPending = ref(false)
+
 async function load() {
   pending.value = true
   failed.value = false
   data.value = null
+  origins.value = []
   try {
-    data.value = await resolveName(props.name)
+    const answer = await resolveName(props.name)
+    data.value = answer
+
+    const ips = [...answer.a, ...answer.aaaa].map((r) => r.data)
+    if (ips.length) {
+      originsPending.value = true
+      try {
+        origins.value = await resolveOrigins(ips)
+      } catch {
+        origins.value = []
+      } finally {
+        originsPending.value = false
+      }
+    }
   } catch {
     failed.value = true
   } finally {
@@ -94,12 +119,48 @@ function ttl(seconds: number): string {
           </dd>
         </template>
       </dl>
+
+      <!-- Grouped by AS: five round-robin addresses for one name are one
+           origin, not five. -->
+      <template v-if="origins.length">
+        <p class="eyebrow mono dns-sub">announced by</p>
+        <ul class="dns-origins">
+          <li v-for="o in origins" :key="o.asn">
+            <p class="dns-as">
+              <a
+                class="mono dns-asn"
+                :href="`https://bgp.tools/as/${o.asn}`"
+                target="_blank"
+                rel="noopener"
+                >AS{{ o.asn }}</a
+              >
+              <span v-if="o.name" class="dns-asname">{{ o.name }}</span>
+            </p>
+            <p class="dns-meta mono">
+              <!-- One prefix is worth naming; several are worth counting, with
+                   the list on hover — quoting the first would imply it covered
+                   the rest. -->
+              <span v-if="o.prefixes.length === 1">{{ o.prefixes[0] }}</span>
+              <span v-else-if="o.prefixes.length" :title="o.prefixes.join('\n')">
+                {{ o.prefixes.length }} prefixes
+              </span>
+              <span v-if="o.registry" class="dns-reg">{{ o.registry }}</span>
+              <span v-if="o.cc" class="dns-cc" :title="`Registry country for the allocation — not a geolocation`">
+                {{ o.cc }}
+              </span>
+            </p>
+          </li>
+        </ul>
+      </template>
+      <p v-else-if="originsPending" class="dns-note muted dns-sub">Looking up the origin AS…</p>
     </template>
 
     <p class="dns-foot">
-      Live lookup through <span class="mono">1.1.1.1</span>, from your browser.
-      Today's answer — not corpus data, and not what the observed client
-      necessarily resolved at the time.
+      Live lookup through <span class="mono">1.1.1.1</span>, from your browser;
+      the origin AS comes from Team Cymru over the same resolver. Today's answer
+      — not corpus data, and not what the observed client necessarily resolved
+      at the time. The country is the registry's allocation, not where the
+      machine is.
     </p>
   </aside>
 </template>

@@ -98,6 +98,67 @@
   color: var(--faint);
 }
 
+/* A second eyebrow inside the panel, quieter than the first. */
+.dns-sub {
+  margin: var(--sp-4) 0 var(--sp-2);
+  padding-top: var(--sp-3);
+  border-top: var(--border-width) solid var(--line);
+}
+
+.dns-origins {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: var(--fs-sm);
+}
+.dns-origins li + li {
+  margin-top: var(--sp-3);
+}
+
+.dns-as {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin: 0;
+}
+.dns-asn {
+  color: var(--link);
+  text-decoration: none;
+  flex: none;
+}
+.dns-asn:hover {
+  text-decoration: underline;
+}
+.dns-asname {
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.dns-meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin: 2px 0 0;
+  font-size: var(--fs-xs);
+  color: var(--faint);
+}
+/* The registry and its country code are metadata about the allocation, not
+   about the host — kept visually subordinate to the prefix so they read that
+   way. */
+.dns-reg,
+.dns-cc {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.dns-cc {
+  padding: 0 4px;
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-chip);
+  cursor: help;
+}
+
 .dns-foot {
   margin: var(--sp-4) 0 0;
   padding-top: var(--sp-3);
