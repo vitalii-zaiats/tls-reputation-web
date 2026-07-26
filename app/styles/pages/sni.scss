@@ -85,3 +85,34 @@ h1.ident {
   margin-top: var(--sp-4);
   font-size: var(--fs-sm);
 }
+
+/* Inline share bar in the client table — the single home for the share
+   ranking, replacing the separate bar chart that used to duplicate it. */
+.share-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.share-track {
+  width: 72px;
+  height: 6px;
+  border-radius: var(--radius-bar);
+  background: var(--panel-2);
+  overflow: hidden;
+}
+.share-fill {
+  display: block;
+  height: 100%;
+  background: var(--amber);
+  border-radius: var(--radius-bar);
+}
+.share-pct {
+  min-width: 3.4em;
+  text-align: right;
+}
+
+@media (max-width: 34rem) {
+  .share-track {
+    width: 40px;
+  }
+}

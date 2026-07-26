@@ -28,23 +28,15 @@ const isAuth = computed(() => data.value?.category === "auth")
 const verdict = computed(() => (data.value ? sniVerdict(data.value) : null))
 
 const clients = computed(() => data.value?.top_fingerprints || [])
-const clientLabel = (c: DomainClient) => c.known?.name || truncateMiddle(c.ja4 || c.ja3, 14, 8)
 const clientTo = (c: DomainClient): string =>
   c.ja4 ? `/fp/${encodeURIComponent(c.ja4)}` : c.ja3 ? `/fp/${encodeURIComponent(c.ja3)}` : ""
 
-// Bars only on the first page — the table below is server-paged, so a bar list
-// there would silently claim the whole domain from one slice.
-const onFirstPage = computed(() => page.value === 0)
-const barItems = computed(() =>
-  clients.value.slice(0, 15).map((c) => ({
-    key: c.ja4,
-    label: clientLabel(c),
-    value: c.count,
-    share: c.share,
-    to: clientTo(c),
-    _c: c,
-  })),
-)
+// The share column carries its own inline bar, scaled to the busiest client on
+// the current page — so the ranking reads at a glance without a second, duplicate
+// bar chart stacked above the same table.
+const maxShare = computed(() => Math.max(...clients.value.map((c) => c.share || 0), 1e-6))
+const barWidth = (share: number): string =>
+  `${Math.max(3, ((share || 0) / maxShare.value) * 100)}%`
 
 const statItems = computed(() =>
   data.value
@@ -149,31 +141,6 @@ useSeoMeta({
     <section class="section">
       <h2>Client stacks reaching this name</h2>
 
-      <template v-if="onFirstPage && barItems.length">
-        <ShareBarList
-          :items="barItems"
-          :max="15"
-          scale="max"
-          :tail-label="(n) => `+${formatNum(n)} more clients`"
-          empty-text="No fingerprints recorded for this name."
-        >
-          <template #label="{ item }">
-            <NuxtLink v-if="item.to" :to="item.to" class="mono lk" :class="{ named: item._c.known }">
-              {{ item.label }}
-            </NuxtLink>
-            <span v-else class="mono">{{ item.label }}</span>
-          </template>
-          <template #meta="{ item }">
-            <StabilityBadge :stability="item._c.stability" />
-          </template>
-        </ShareBarList>
-        <p class="footnote">
-          Busiest {{ Math.min(15, barItems.length) }} client stacks on this page. Share is the fraction of this name’s
-          observations. Many distinct fingerprints on a low-traffic name is itself worth a look; a blank JA3 is a
-          permuting client — open the fingerprint for its variants.
-        </p>
-      </template>
-
       <div v-if="pending && !clients.length" class="status">Loading clients…</div>
       <div v-else-if="clients.length" class="tbl-wrap record">
         <table class="tbl">
@@ -200,7 +167,14 @@ useSeoMeta({
               </td>
               <td><StabilityBadge :stability="c.stability" /></td>
               <td class="r nums">{{ formatNum(c.count) }}</td>
-              <td class="r nums">{{ formatShare(c.share) }}</td>
+              <td class="r">
+                <span class="share-wrap">
+                  <span class="share-track" aria-hidden="true">
+                    <span class="share-fill" :style="{ width: barWidth(c.share) }"></span>
+                  </span>
+                  <span class="nums share-pct">{{ formatShare(c.share) }}</span>
+                </span>
+              </td>
               <td class="r nums" :title="c.first_seen ?? ''">{{ formatDate(c.first_seen) }}</td>
               <td class="r nums" :title="c.last_seen ?? ''">{{ formatDate(c.last_seen) }}</td>
             </tr>
@@ -208,6 +182,11 @@ useSeoMeta({
         </table>
       </div>
       <div v-else class="status">No fingerprints recorded for this name.</div>
+
+      <p v-if="clients.length" class="footnote">
+        Share is the fraction of this name’s observations; the bar is scaled to the busiest client shown. A
+        blank JA3 is a permuting client — open the fingerprint for its variants.
+      </p>
 
       <div v-if="total > PAGE" class="pager">
         <button class="control" :disabled="page === 0" @click="page--">prev</button>
