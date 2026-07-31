@@ -102,20 +102,35 @@ const domainPage = ref(qInt(q0.dpage))
 // Regex filter. Held separately from the applied value so typing does not fire
 // a query per keystroke — the server runs this against every row under a 2s
 // timeout, and a half-written pattern is both meaningless and expensive.
-const patternDraft = ref(qStr(q0.pattern) || "")
-const pattern = ref(patternDraft.value)
-const patternError = ref("")
+// Reject it here too, so an obvious typo never becomes a round trip. Returns
+// the message rather than throwing, because the two callers differ: typing one
+// in shows it under the box, arriving with one in the URL shows it instead of
+// a broken table.
+function regexFault(p: string): string {
+  if (!p) return ""
+  try {
+    new RegExp(p)
+    return ""
+  } catch (e) {
+    return e instanceof Error ? e.message : "invalid pattern"
+  }
+}
+
+const patternDraft = ref((qStr(q0.pattern) || "").trim())
+// A pattern from the URL is untrusted the same way a typed one is — the main
+// lookup box forwards anything regex-shaped here without compiling it, so a
+// glob like *.example.com lands as a query string and must not reach the API.
+const seedFault = regexFault(patternDraft.value)
+const pattern = ref(seedFault ? "" : patternDraft.value)
+const patternError = ref(seedFault)
+
 function applyPattern() {
   patternDraft.value = patternDraft.value.trim()
-  try {
-    // Reject it here too, so an obvious typo never becomes a round trip.
-    if (patternDraft.value) new RegExp(patternDraft.value)
-    patternError.value = ""
-    pattern.value = patternDraft.value
-    domainPage.value = 0
-  } catch (e) {
-    patternError.value = e instanceof Error ? e.message : "invalid pattern"
-  }
+  const fault = regexFault(patternDraft.value)
+  patternError.value = fault
+  if (fault) return
+  pattern.value = patternDraft.value
+  domainPage.value = 0
 }
 function clearPattern() {
   patternDraft.value = ""
@@ -124,7 +139,7 @@ function clearPattern() {
   domainPage.value = 0
 }
 
-const { data: snisData, pending: snisPending } = useAsyncData(
+const { data: snisData, pending: snisPending, error: snisError } = useAsyncData(
   "browse-snis",
   () =>
     domains.list({
@@ -297,6 +312,10 @@ watch(
     </div>
 
     <p v-if="patternError" class="status status--error pattern-msg">{{ patternError }}</p>
+    <p v-else-if="snisError" class="status status--error pattern-msg">
+      The server rejected that filter. Postgres and JavaScript do not share a
+      regex dialect, so a pattern can pass here and fail there.
+    </p>
     <p v-else-if="pattern" class="pattern-msg muted">
       matching <code class="mono">{{ pattern }}</code> — {{ formatNum(domainTotal) }}
       {{ domainTotal === 1 ? "domain" : "domains" }}
