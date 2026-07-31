@@ -10,6 +10,7 @@ export function useCatalogService() {
     alpn: res.alpn,
     search: res.search,
     graph: res.graph,
+    insights: res.insights,
   }
 }
 

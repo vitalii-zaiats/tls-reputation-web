@@ -179,15 +179,17 @@
   max-width: var(--measure);
 }
 
-/* Six mono links, the wordmark and the theme switch need roughly 840px of bar.
-   Below that they collapsed into two and three ragged rows of chips, so from
-   here the links go behind the disclosure button and open as a full-width
-   column under it.
+/* Seven mono links, the wordmark and the theme switch need roughly 930px of
+   bar. Below that they collapsed into two and three ragged rows of chips, so
+   from here the links go behind the disclosure button and open as a full-width
+   column under it. Adding a link moves this number: it was 840px and 52rem at
+   six, and a nav that outgrows its breakpoint wraps silently rather than
+   failing, so recount when the list changes.
 
    Order rather than markup: the button and the switch stay on the brand's row
    while .nav wraps to its own line. .theme is ThemeToggle's root, which carries
    this layout's scope id, so ordering it from here is in bounds. */
-@media (max-width: 52rem) {
+@media (max-width: 58rem) {
   .nav-toggle {
     display: inline-flex;
     order: 2;

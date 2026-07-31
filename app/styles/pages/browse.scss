@@ -54,3 +54,22 @@ select.control {
   margin-top: var(--sp-4);
   font-size: var(--fs-sm);
 }
+
+/* The regex box shares the control chrome but needs to breathe, so its field
+   takes the leftover width instead of hugging its content like the sort bar. */
+.fld--grow {
+  flex: 1 1 22rem;
+  min-width: 0;
+}
+.pattern {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-mono);
+}
+.pattern::placeholder {
+  color: var(--faint);
+}
+.pattern-msg {
+  margin: var(--sp-3) 0 0;
+  font-size: var(--fs-sm);
+}

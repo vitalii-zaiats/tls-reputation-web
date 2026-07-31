@@ -47,6 +47,7 @@ watch(() => route.fullPath, () => (menuOpen.value = false))
         <NuxtLink to="/roots">roots</NuxtLink>
         <NuxtLink to="/graph">graph</NuxtLink>
         <NuxtLink to="/fingerprint">your fingerprint</NuxtLink>
+        <NuxtLink to="/insights">insights</NuxtLink>
         <NuxtLink to="/use-case">use case</NuxtLink>
         <NuxtLink to="/docs">docs</NuxtLink>
       </nav>

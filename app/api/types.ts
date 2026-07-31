@@ -259,9 +259,55 @@ export interface DomainListParams extends PageParams {
   sort?: string
   dir?: SortDir
   category?: string
+  /** POSIX regex matched case-insensitively against the server name. */
+  pattern?: string
 }
 
 export interface RootListParams extends PageParams {
   sort?: string
   dir?: SortDir
+}
+
+// ──────────────────────────── insights ────────────────────────────
+
+/** How far the JA4 count overstates the number of distinct client builds. */
+export interface Collapse {
+  distinct_ja4: number
+  /** ja4_b + ja4_c: ciphers and extensions, without the destination-shaped ja4_a. */
+  builds: number
+  extension_sets: number
+  cipher_lists: number
+}
+
+/**
+ * A domain and how evenly its traffic split across client stacks.
+ * `flatness` is top1_share x stacks: ~1 is a round-robin, organic is far higher.
+ */
+export interface FlatDomain {
+  sni: string
+  stacks: number
+  observations: number
+  top1_share: number
+  flatness: number
+  category: string | null
+}
+
+export interface ConcentratedDomain {
+  sni: string
+  observations: number
+  category: string | null
+}
+
+export interface PlatformShare {
+  cipher_list: string
+  observations: number
+  ja4_rows: number
+  known: string | null
+}
+
+export interface Insights {
+  collapse: Collapse
+  flattest: FlatDomain[]
+  concentrated: ConcentratedDomain[]
+  platforms: PlatformShare[]
 }

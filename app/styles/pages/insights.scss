@@ -1,0 +1,99 @@
+.lede {
+  margin: var(--sp-3) 0 0;
+  max-width: var(--measure);
+  color: var(--dim);
+  font-size: var(--fs-md);
+}
+
+.narrow {
+  max-width: var(--measure);
+  color: var(--dim);
+}
+.narrow strong,
+.narrow em {
+  color: var(--text);
+}
+.narrow em {
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* The four counts of the JA4 collapse, as one row of quiet stat blocks —
+   the same voice as the home page's corpus totals. */
+.collapse-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-6);
+  margin: var(--sp-5) 0 0;
+}
+.collapse-grid > div {
+  display: flex;
+  flex-direction: column-reverse; /* dt precedes dd in markup; number on top */
+  min-width: 0;
+}
+.collapse-grid > div + div {
+  border-left: var(--border-width) solid var(--line);
+  padding-left: var(--sp-6);
+}
+.collapse-grid dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-lg);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.collapse-grid dt {
+  margin-top: var(--sp-1);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+/* The ja4 part a label refers to, kept subordinate to the label itself. */
+.collapse-grid .sub {
+  display: block;
+  margin-top: 2px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--faint);
+  opacity: 0.75;
+}
+
+/* The one number on the page that is an accusation, so it gets the accent —
+   and only below the threshold the footnote explains. */
+.flag {
+  color: var(--link);
+  font-weight: 600;
+}
+
+.chip {
+  margin-left: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  padding: 1px var(--sp-2);
+  border-radius: var(--radius-chip);
+  border: var(--border-width) solid var(--line);
+  color: var(--dim);
+  white-space: nowrap;
+}
+.chip--accent {
+  color: var(--link);
+  border-color: color-mix(in srgb, var(--amber) 55%, transparent);
+  background: var(--amber-soft);
+}
+
+.explore {
+  margin-top: var(--sp-6);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+}
+
+@media (max-width: 42rem) {
+  .collapse-grid {
+    gap: var(--sp-4);
+  }
+  .collapse-grid > div + div {
+    padding-left: var(--sp-4);
+  }
+}

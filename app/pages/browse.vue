@@ -98,10 +98,43 @@ watch([clientFilter, alpnFilter, fpSort, fpDir], () => (fpPage.value = 0))
 const domainSort = ref<DomainSortKey>(oneOf(q0.dsort, DOMAIN_SORTS, "observations"))
 const domainDir = ref<SortDir>(qStr(q0.ddir) === "asc" ? "asc" : "desc")
 const domainPage = ref(qInt(q0.dpage))
+
+// Regex filter. Held separately from the applied value so typing does not fire
+// a query per keystroke — the server runs this against every row under a 2s
+// timeout, and a half-written pattern is both meaningless and expensive.
+const patternDraft = ref(qStr(q0.pattern) || "")
+const pattern = ref(patternDraft.value)
+const patternError = ref("")
+function applyPattern() {
+  patternDraft.value = patternDraft.value.trim()
+  try {
+    // Reject it here too, so an obvious typo never becomes a round trip.
+    if (patternDraft.value) new RegExp(patternDraft.value)
+    patternError.value = ""
+    pattern.value = patternDraft.value
+    domainPage.value = 0
+  } catch (e) {
+    patternError.value = e instanceof Error ? e.message : "invalid pattern"
+  }
+}
+function clearPattern() {
+  patternDraft.value = ""
+  patternError.value = ""
+  pattern.value = ""
+  domainPage.value = 0
+}
+
 const { data: snisData, pending: snisPending } = useAsyncData(
   "browse-snis",
-  () => domains.list({ sort: domainSort.value, dir: domainDir.value, limit: PAGE, offset: domainPage.value * PAGE }),
-  { watch: [domainSort, domainDir, domainPage], lazy: true },
+  () =>
+    domains.list({
+      sort: domainSort.value,
+      dir: domainDir.value,
+      limit: PAGE,
+      offset: domainPage.value * PAGE,
+      ...(pattern.value ? { pattern: pattern.value } : {}),
+    }),
+  { watch: [domainSort, domainDir, domainPage, pattern], lazy: true },
 )
 const domainItems = computed(() => snisData.value?.items || [])
 const domainTotal = computed(() => snisData.value?.total || 0)
@@ -120,7 +153,7 @@ const stabilityClass = (f: FingerprintSummary) => f.stability?.class || ""
 // Mirror the current view into the URL — replace (not push) so filtering doesn't
 // spam history, and only non-default params so the URL stays clean.
 watch(
-  [tab, fpSort, fpDir, fpPage, clientFilter, alpnFilter, domainSort, domainDir, domainPage],
+  [tab, fpSort, fpDir, fpPage, clientFilter, alpnFilter, domainSort, domainDir, domainPage, pattern],
   () => {
     const q: Record<string, string> = {}
     if (tab.value === "domains") q.tab = "domains"
@@ -129,6 +162,7 @@ watch(
     if (fpPage.value) q.page = String(fpPage.value)
     if (clientFilter.value !== ANY) q.client = clientFilter.value
     if (alpnFilter.value !== ANY) q.alpn = alpnFilter.value
+    if (pattern.value) q.pattern = pattern.value
     if (domainSort.value !== "observations") q.dsort = domainSort.value
     if (domainDir.value !== "desc") q.ddir = domainDir.value
     if (domainPage.value) q.dpage = String(domainPage.value)
@@ -240,7 +274,33 @@ watch(
           </button>
         </div>
       </div>
+
+      <div class="fld fld--grow">
+        <span>regex</span>
+        <div class="bar">
+          <input
+            v-model="patternDraft"
+            class="control pattern"
+            type="search"
+            spellcheck="false"
+            autocapitalize="off"
+            autocorrect="off"
+            placeholder="\.appsflyer\.com$"
+            aria-label="Filter domains by regular expression"
+            @keyup.enter="applyPattern"
+            @search="patternDraft || clearPattern()"
+          />
+          <button class="control" type="button" @click="applyPattern">apply</button>
+          <button v-if="pattern" class="control" type="button" @click="clearPattern">clear</button>
+        </div>
+      </div>
     </div>
+
+    <p v-if="patternError" class="status status--error pattern-msg">{{ patternError }}</p>
+    <p v-else-if="pattern" class="pattern-msg muted">
+      matching <code class="mono">{{ pattern }}</code> — {{ formatNum(domainTotal) }}
+      {{ domainTotal === 1 ? "domain" : "domains" }}
+    </p>
 
     <div v-if="snisPending" class="tbl-wrap sk-table">
       <Skeleton :lines="12" height="2.2rem" gap="0.5rem" />
