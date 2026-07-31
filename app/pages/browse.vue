@@ -167,9 +167,16 @@ const stabilityClass = (f: FingerprintSummary) => f.stability?.class || ""
 
 // Mirror the current view into the URL — replace (not push) so filtering doesn't
 // spam history, and only non-default params so the URL stays clean.
+//
+// Both the guard and the explicit path matter. `router.replace({ query })` with
+// no path applies the query to whatever route is current WHEN THE CALL LANDS,
+// and this watcher can still fire while the user is on their way somewhere
+// else — which stamped browse's filters onto the destination and cancelled the
+// navigation, so leaving a filtered view appeared to do nothing.
 watch(
   [tab, fpSort, fpDir, fpPage, clientFilter, alpnFilter, domainSort, domainDir, domainPage, pattern],
   () => {
+    if (route.path !== "/browse") return
     const q: Record<string, string> = {}
     if (tab.value === "domains") q.tab = "domains"
     if (fpSort.value !== "observations") q.sort = fpSort.value
@@ -181,7 +188,7 @@ watch(
     if (domainSort.value !== "observations") q.dsort = domainSort.value
     if (domainDir.value !== "desc") q.ddir = domainDir.value
     if (domainPage.value) q.dpage = String(domainPage.value)
-    router.replace({ query: q })
+    router.replace({ path: "/browse", query: q })
   },
 )
 </script>
